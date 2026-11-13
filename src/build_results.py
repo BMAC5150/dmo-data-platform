@@ -44,6 +44,9 @@ def brief_payload(R):
         "need_periods_next_6_months": R["need"].to_dict("records"),
         "need_months_setting": S["need_months"],
         "data_check_issues": R["check"].query("Status == 'CHECK'")[["Check", "Result"]].to_dict("records"),
+        "insights": R["insights"],
+        "delivery": {"brief_month": str(S["report_month"] + 1),
+                     "act_by": (S["report_month"] + 1).to_timestamp(how="end").strftime("%Y-%m-%d")},
     }
 
 

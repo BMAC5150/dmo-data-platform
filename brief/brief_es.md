@@ -1,16 +1,23 @@
 # Informe de eventos de negocios · Ixtapa-Zihuatanejo · octubre 2026
 DATOS SINTÉTICOS. Prototipo: los hoteles, grupos y cifras son inventados.
 
-## Tres hallazgos
-1. **Las noches de grupo bajaron 4.8% en octubre, por las asociaciones.** Los 7 hoteles comparables registraron 8,580 noches de grupo, contra 9,009 en octubre de 2025. Asociaciones cayó 28.9% (1,919 contra 2,698); corporativo subió 3.3% e incentivos 9.7%. En los últimos 12 meses el total sigue arriba 1.3%.
-2. **Ganamos 26 de 92 decisiones en los últimos 12 meses (28.3%), con 8,231 noches.** Corporativo mexicano es el sector más fuerte: 9 de 23 (39.1%). Asociaciones médicas ganó 7 de 25 (28%). Deportes perdió las 10 que se decidieron.
-3. **Perdemos sobre todo por precio, acceso aéreo y percepción de seguridad.** De 66 grupos perdidos, 17 fueron por precio, 14 por acceso aéreo y 12 por percepción de seguridad. Los destinos que más nos ganan son Puerto Vallarta (17) y Huatulco (15).
+## Lo esencial
+Octubre cerró con 8,580 noches de grupo, 4.8% menos que en octubre de 2025, por una caída de 28.9% en asociaciones. La cartera prioritaria suma 8,936 noches estimadas, pero la oportunidad más urgente, Grupo Financiero Cumbres, llega el 18 de noviembre de 2026 y lleva 163 días abierta. Se pide a la Dirección cerrarla esta semana y decidir cómo responder al acceso aéreo, el motivo de pérdida que más noches nos cuesta.
 
-## Tres acciones
-1. **Contactar esta semana a los 20 prospectos prioritarios (puntaje de 80 o más), empezando por Grupo Financiero Cumbres.** Es el único prioritario que llega en los próximos 3 meses: 18 de noviembre de 2026, 349 asistentes y 219 habitaciones pico, y la oportunidad sigue abierta. Después, los 4 con puntaje 100, todos con fechas en septiembre de 2027, empezando por Seguros Altavista (331 asistentes).
-2. **Recuperar asociaciones para los meses de necesidad de 2027.** Revisar con los hoteles qué congreso no se repitió en octubre (caída de 28.9%) y dar prioridad a las asociaciones médicas con fechas en mayo, junio, septiembre, octubre y noviembre.
-3. **Preparar con hoteles y aerolíneas una oferta de grupo que responda al precio y al acceso aéreo.** Llevar a la próxima cotización una tarifa de grupo y opciones de vuelo frente a Puerto Vallarta y Huatulco, para atacar las pérdidas por precio (17) y acceso aéreo (14).
+## Tres hallazgos
+1. **El acceso aéreo nos cuesta más noches que el precio.** El precio es el motivo más frecuente (17 grupos perdidos), pero el acceso aéreo costó 8,913 noches estimadas en 14 grupos, contra 6,640 del precio. Puerto Vallarta nos ganó 4 grupos por acceso aéreo, con 3,399 noches estimadas.
+2. **Los hoteles nos traen los grupos que sí ganamos.** Las referencias de hoteles ganan 40.0% (8 de 20); las solicitudes por Cvent, 15.4% (2 de 13). Corporativo mexicano es el sector más fuerte, con 39.1% (9 de 23); deportes perdió las 10 que se decidieron.
+3. **Septiembre de 2027 concentra la cartera.** Es el mes más flojo (ocupación de 41.2% el año pasado) y tiene 6 prospectos prioritarios con 4,518 noches estimadas. Los prospectos más grandes de la cartera (Corporativo Cedro, Laboratorios Sauce, Seguros Altavista y Grupo Cumbres) llegan ese mes, entre el 9 y el 27 de septiembre.
+
+## Tres acciones para noviembre 2026
+1. **Cerrar a Grupo Financiero Cumbres.** Responsable: Dirección · Fecha límite: antes del 18 de noviembre de 2026 · En juego: 657 noches estimadas. Lleva 163 días abierta: confirmar la propuesta o liberar los cuartos. Ventas revisa además las 10 oportunidades abiertas hace más de 90 días y confirma o cierra cada una antes del 30 de noviembre de 2026.
+2. **Asegurar con los hoteles socios la capacidad de septiembre de 2027 para Corporativo Cedro, Laboratorios Sauce, Seguros Altavista y Grupo Cumbres.** Responsable: Ventas con Hoteles socios · Fecha límite: 30 de noviembre de 2026 · En juego: 4,518 noches estimadas. Pedir bloqueos tentativos antes de cotizar, para no competir entre nosotros por las mismas fechas.
+3. **Llevar a las aerolíneas los grupos que perdimos por acceso aéreo.** Responsable: Dirección · Fecha límite: 30 de noviembre de 2026 · En juego: 8,913 noches estimadas perdidas en 12 meses. Ventas arma la lista de los 14 grupos con su ciudad de origen; la Dirección la presenta a las aerolíneas como demanda real de rutas y horarios.
+
+## Para vigilar
+- Asociaciones bajó 28.9% en octubre (1,919 contra 2,698 noches). Los últimos 12 meses todavía van arriba 1.3%; si la caída se repite, ese margen desaparece.
+- Huatulco nos ganó 6 grupos por precio, con 2,596 noches estimadas.
 
 ## Notas sobre los datos
-- Hotel Cerro Verde no envió octubre (7 de 8 hoteles); quedó fuera de la comparación.
+- Hotel Cerro Verde no envió octubre (7 de 8 hoteles) y quedó fuera de la comparación: pedirle el formulario.
 - La oportunidad L-0119 sigue abierta con una fecha que ya pasó: actualizar su estado.

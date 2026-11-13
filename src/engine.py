@@ -317,6 +317,71 @@ def q_boxscore(leads, S):
     return by_sector, totals
 
 
+def q_insights(leads, fit, occ, S, stale_days=90):
+    """The 'so what' queries: room nights at stake, where and to whom we lose, which channels win,
+    stale leads, and need months with an empty pipeline. Room nights for leads are estimates:
+    peak rooms x nights."""
+    rm = S["report_month"]
+    rm_end = rm.to_timestamp(how="end")
+    l = leads.assign(Nights=(leads["End date"] - leads["Start date"]).dt.days)
+    l = l.assign(**{"Est. room nights": (l["Peak rooms"] * l["Nights"]).fillna(0).astype(int)})
+    d = last_12(l, S)
+    lost = d[d.Status == "Lost"]
+
+    by_reason = (lost.groupby("Loss reason").agg(leads_lost=("LeadID", "size"), room_nights_lost=("Est. room nights", "sum"))
+                 .sort_values("room_nights_lost", ascending=False).reset_index())
+    pairs = (lost.dropna(subset=["Lost to"]).groupby(["Lost to", "Loss reason"])
+             .agg(leads_lost=("LeadID", "size"), room_nights_lost=("Est. room nights", "sum"))
+             .sort_values(["leads_lost", "room_nights_lost"], ascending=False).head(5).reset_index())
+
+    src = []
+    for source, g in d.groupby("Source"):
+        n, won = len(g), int((g.Status == "Won").sum())
+        src.append({"source": source, "decided": n, "won": won,
+                    "win_rate": round(won / n, 3) if n >= S["min_n"] else NOT_ENOUGH,
+                    "room_nights_won": int(g.loc[g.Status == "Won", "Actual room nights"].sum())})
+    src = sorted(src, key=lambda r: (r["win_rate"] if not isinstance(r["win_rate"], str) else -1), reverse=True)
+
+    o = l[(l.Status == "Open") & (l["Start date"] > rm_end)].copy()
+    o["days_open"] = (rm_end.normalize() - o["Received"]).dt.days
+    o["days_from_month_end_to_event"] = (o["Start date"] - rm_end.normalize()).dt.days
+    stale = o[o["days_open"] > stale_days].sort_values("Start date")
+    stale_list = [{"lead_id": r.LeadID, "organizer": r.Organizer, "sector": r.Sector,
+                   "start_date": r["Start date"].strftime("%Y-%m-%d"),
+                   "days_open": int(r.days_open), "days_from_month_end_to_event": int(r.days_from_month_end_to_event),
+                   "est_room_nights": int(r["Est. room nights"])}
+                  for _, r in stale.iterrows()]
+
+    prio = fit[fit.Priority == "Yes"]
+    won = l[l.Status == "Won"]
+    months = []
+    for k in range(1, 13):
+        m = rm + k
+        pm = prio[pd.to_datetime(prio["Start date"]).dt.to_period("M") == m]
+        om = o[o["Start date"].dt.to_period("M") == m]
+        wm = won[won["Start date"].dt.to_period("M") == m]
+        months.append({"month": str(m), "need_month": m.month in S["need_months"],
+                       "occupancy_last_year_pct": occ.get(m.month),
+                       "groups_won": len(wm), "won_est_room_nights": int(wm["Est. room nights"].sum()),
+                       "open_leads": len(om), "open_est_room_nights": int(om["Est. room nights"].sum()),
+                       "priority_leads": len(pm), "priority_est_room_nights": int(pm["Est. room nights"].sum())})
+    empty_need = [x["month"] for x in months if x["need_month"] and x["priority_leads"] == 0]
+
+    return {
+        "room_nights_note": "Room nights for lost and open leads are estimates: peak rooms x nights.",
+        "lost_last_12_months": {"leads": len(lost), "est_room_nights": int(lost["Est. room nights"].sum()),
+                                "by_reason": by_reason.to_dict("records"),
+                                "top_competitor_reason_pairs": pairs.to_dict("records")},
+        "win_rate_by_source_last_12_months": src,
+        "stale_open_leads": {"rule_days_open_over": stale_days, "count": len(stale_list), "leads": stale_list},
+        "priority_pipeline": {"leads": len(prio), "est_room_nights": int(prio["Est. room nights"].sum()),
+                              "top_5_by_room_nights": prio.sort_values("Est. room nights", ascending=False).head(5)[
+                                  ["Organizer", "Sector", "Start date", "Est. room nights", "Score"]].to_dict("records")},
+        "next_12_months": months,
+        "need_months_without_priority_leads": empty_need,
+    }
+
+
 # ------------------------------------------------------------------ data check
 def data_check(leads, long, replaced, prospects, unmapped, dupes, hotels, S, raw):
     rm = S["report_month"]
@@ -361,8 +426,9 @@ def run(data_xlsx, responses_xlsx, imports_dir, config_path=HERE / "config_ixtap
     cap = q_capacity(assets, S)
     trend = q_trend(long, S)
     box, tot = q_boxscore(leads, S)
+    insights = q_insights(leads, fit, occ, S)
     raw = {"leads": len(data["Leads"]), "assets": len(assets),
            "responses": len(responses["Form responses 1"]), "imports": sum(len(v) for v in imports.values())}
     check, missing = data_check(leads, long, replaced, prospects, unmapped, dupes, hotels, S, raw)
     return dict(S=S, config=config, need=need, fit=fit, loss=loss, lost_to=lost_to, n_lost=n_lost, cap=cap,
-                trend=trend, box=box, tot=tot, check=check, missing=missing, hotels=hotels)
+                trend=trend, box=box, tot=tot, insights=insights, check=check, missing=missing, hotels=hotels)

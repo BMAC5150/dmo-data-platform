@@ -111,7 +111,7 @@ def test_api_brief_passes_check_first_time():
     text, info = brief_api.draft_brief(p, "Ixtapa-Zihuatanejo", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
     assert text == good and info["attempts"] == 1 and len(calls) == 1
     sent = calls[0]
-    assert sent["model"] == brief_api.DEFAULT_MODEL and "SOLO las cifras" in sent["system"]
+    assert sent["model"] == brief_api.DEFAULT_MODEL and "SOLO cifras" in sent["system"]
     assert "Hotel Palmar Grande" not in sent["messages"][0]["content"], "no raw hotel-level data goes to Claude"
 
 
