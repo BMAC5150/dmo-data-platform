@@ -27,7 +27,7 @@ def brief_payload(R):
     top = f.iloc[0]
     f = f.assign(**{"Capacity fit": f["Capacity pts"].map(
         lambda x: "fits" if x >= S["w_capacity"] else ("tight" if x > 0 else "too big for the destination"))})
-    lead_cols = ["Organizer", "Type", "Sector", "Start date", "Attendees", "Peak rooms", "Score",
+    lead_cols = ["Organizer", "Type", "Sector", "Start date", "Attendees", "Peak rooms", "Est. room nights", "Score",
                  "Capacity fit", "Venues that fit", "Same dates as"]
     return {
         "report_month": rm,

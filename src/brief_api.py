@@ -50,6 +50,7 @@ QUÉ BUSCAR PARA LOS HALLAZGOS (los resultados ya traen estos cálculos; úsalos
 ACCIONES
 - Exactamente tres. Primero lo que vence antes (un evento próximo con la oportunidad aún abierta va primero); después, por noches en juego, de mayor a menor.
 - Cada una nombra organizaciones concretas de los resultados, un responsable (Dirección, Ventas o Hoteles socios), una fecha límite y lo que está en juego en noches.
+- Las noches en juego de una acción son las de las organizaciones que nombra, una por una, con su propio "Est. room nights" (por ejemplo: "390 noches estimadas en A, 340 en B y 304 en C"). Nunca uses para ellas un total de mes, de sector o de la cartera, y no sumes.
 - Prohibido lo genérico: nada de "fortalecer la promoción", "mejorar la marca", "aprovechar oportunidades", "dar seguimiento" sin a quién y para cuándo.
 - No propongas perseguir ni conseguir una oportunidad marcada "too big for the destination" o que no sea prioritaria ("priority": false); a esas solo se les puede proponer cerrarlas o liberarlas. Para crecer, usa los prospectos prioritarios.
 - Fechas cruzadas: antes de escribir una acción, busca a cada organización en "date_clashes". Si aparece, la acción dice con qué grupos coincide en fechas y cuántas habitaciones pico suman en la noche más cargada ("most_peak_rooms_on_one_night"), e incluye confirmar con Hoteles socios que pueden alojar a todos esos grupos en esas fechas. Nunca propongas dos grupos que coinciden en fechas como si fueran independientes.
@@ -110,6 +111,7 @@ WHAT TO LOOK FOR IN THE FINDINGS (the results already contain these calculations
 ACTIONS
 - Exactly three. First whatever is due soonest (an upcoming event with the lead still open goes first); then by room nights at stake, largest first.
 - Each names specific organizations from the results, an owner (Director, Sales or Partner hotels), a deadline and what is at stake in room nights.
+- The room nights at stake in an action are those of the organizations it names, one by one, each with its own "Est. room nights" (for example: "390 estimated room nights at A, 340 at B and 304 at C"). Never use a month, sector or pipeline total for them, and do not add them up.
 - No generic advice: nothing like "strengthen promotion", "improve the brand", "seize opportunities", or "follow up" without who and by when.
 - Never propose pursuing or winning a lead marked "too big for the destination" or not a priority ("priority": false); for those, the only action you may propose is to close or release them. For growth, use the priority prospects.
 - Overlapping dates: before writing an action, look up each organization in "date_clashes". If it is there, the action says which groups share its dates and how many peak rooms they add up to on the busiest night ("most_peak_rooms_on_one_night"), and includes confirming with Partner hotels that they can house all those groups on those dates. Never propose two groups with overlapping dates as if they were independent.

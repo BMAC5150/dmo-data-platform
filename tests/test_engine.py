@@ -233,6 +233,13 @@ def test_tight_lead_carries_size_facts_for_the_brief():
     assert 1035.0 in b.allowed_numbers(p), "the overlap total must be quotable in the brief"
 
 
+def test_top_leads_carry_their_own_room_nights():
+    p = b.brief_payload(engine.run(D, H, I))
+    rn = {r["Organizer"]: r["Est. room nights"] for r in p["lead_targeting"]["top_10"]}
+    assert rn["Distribuidora Altavista"] == 390 and rn["Grupo Financiero Ceiba"] == 340
+    assert rn["Colegio Cedro de Pediatría"] == 304
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
