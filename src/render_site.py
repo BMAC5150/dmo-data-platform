@@ -184,14 +184,18 @@ def render(R, brief_text, check_df, meta):
     # --- Corrida
     chk = R["check"]
     n_alert = int((chk.Status == "CHECK").sum())
-    n_ok = int((check_df["Found in results"] == "Yes").sum())
+    n_ok = int((check_df["Found in results"] == "Yes").sum()) if len(check_df) else 0
+    held = brief_text is None
     steps = [
         ("Leer los archivos", tr_check(chk.loc[chk.Check == "Rows read", "Result"].iloc[0]), "ok"),
         ("Revisar la estructura", "Todas las pestañas y columnas coinciden con el esquema; si algo cambia, la corrida se detiene", "ok"),
         ("Revisar los datos", f"{n_alert} alertas para el equipo (ver abajo); no detienen la corrida", "warn" if n_alert else "ok"),
         ("Correr las 6 consultas fijas", "Temporadas de necesidad, ajuste de prospectos, motivos de pérdida, capacidad, tendencia de noches de grupo, resultados de propuestas", "ok"),
         ("Redactar el informe", meta["brief_source"], "ok"),
-        ("Verificar cada cifra del informe", f"{n_ok} de {len(check_df)} cifras encontradas en los resultados", "ok" if n_ok == len(check_df) else "warn"),
+        ("Verificar cada cifra del informe",
+         ("Informe retenido: cifras no encontradas en los resultados (" + ", ".join(check_df["Number in brief"].astype(str)) + ")"
+          if len(check_df) else "Informe retenido: la API de Claude no respondió") if held
+         else f"{n_ok} de {len(check_df)} cifras encontradas en los resultados", "warn" if held else "ok"),
         ("Publicar los resultados", f"Esta página y el libro de resultados de {mes(rm)}, con fecha y sin sobrescribir", "ok"),
     ]
     step_html = "".join(
@@ -324,9 +328,16 @@ def render(R, brief_text, check_df, meta):
 </section>"""
 
     # --- Informe
-    chk_tbl = table(["Cifra en el informe", "¿En los resultados?"],
-                    [[esc(r["Number in brief"]), "Sí" if r["Found in results"] == "Yes" else "<b>NO</b>"] for _, r in check_df.iterrows()])
-    informe = f"""
+    if held:
+        informe = f"""
+<section id="informe" class="tab">
+  <div class="card verify"><p><span class="pill warn">Informe retenido</span></p>
+    <p>{(f'El borrador de este mes usó cifras que no aparecen en los resultados ({esc(", ".join(check_df["Number in brief"].astype(str)))}), así que no se publica.') if len(check_df) else 'La API de Claude no respondió durante la corrida.'} El operador lo revisa; el tablero y la prospección sí se publican.</p></div>
+</section>"""
+    else:
+        chk_tbl = table(["Cifra en el informe", "¿En los resultados?"],
+                        [[esc(r["Number in brief"]), "Sí" if r["Found in results"] == "Yes" else "<b>NO</b>"] for _, r in check_df.iterrows()])
+        informe = f"""
 <section id="informe" class="tab">
   <div class="brief card">{md(brief_text)}</div>
   <div class="card verify">

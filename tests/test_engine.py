@@ -93,6 +93,43 @@ def test_number_check_catches_a_wrong_number():
     assert (bad["Found in results"] == "NO").any()
 
 
+def _fake_api(replies):
+    """A stand-in for the Claude API that returns the given drafts in order and records the requests."""
+    calls = []
+    def post(body, key):
+        calls.append(body)
+        return {"content": [{"type": "text", "text": replies[min(len(calls), len(replies)) - 1]}], "model": body["model"]}
+    return post, calls
+
+
+def test_api_brief_passes_check_first_time():
+    import brief_api
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    good = "# Informe\nGanamos 26 de 92 decisiones (28.3%), con 8,231 noches."
+    post, calls = _fake_api([good])
+    text, info = brief_api.draft_brief(p, "Ixtapa-Zihuatanejo", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
+    assert text == good and info["attempts"] == 1 and len(calls) == 1
+    sent = calls[0]
+    assert sent["model"] == brief_api.DEFAULT_MODEL and "SOLO las cifras" in sent["system"]
+    assert "Hotel Palmar Grande" not in sent["messages"][0]["content"], "no raw hotel-level data goes to Claude"
+
+
+def test_api_brief_redrafts_then_holds():
+    import brief_api
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    bad = "Perdimos 43 de 66 por precio, acceso aéreo y seguridad."  # 43 is a sum Claude calculated: not in results
+    good = "Perdimos 66 grupos; 17 por precio."
+    post, calls = _fake_api([bad, good])
+    text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
+    assert text == good and info["attempts"] == 2
+    assert "43" in calls[1]["messages"][0]["content"].split("NO están en los resultados")[1]
+    post, calls = _fake_api([bad, bad])
+    text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
+    assert text is None and info["bad_numbers"] == ["43"] and len(calls) == 2
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

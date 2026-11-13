@@ -245,8 +245,12 @@ def build_workbook(R, brief_text, check_df, path):
         # ---------------- Brief
         ws = sheet("Brief")
         ws.set_column(0, 0, 110)
-        ws.write(2, 0, "Informe del mes (borrador de Claude a partir de los resultados; cada número verificado)", F["title"])
         row = 4
+        if brief_text is None:
+            ws.write(2, 0, "Informe retenido: no pasó la verificación de cifras. El operador lo revisa antes de enviarlo.", F["title"])
+            brief_text = ""
+        else:
+            ws.write(2, 0, "Informe del mes (redactado por Claude a partir de los resultados; cada cifra verificada)", F["title"])
         for line in brief_text.strip().splitlines():
             if line.startswith("#"):
                 ws.write(row, 0, line.lstrip("# ").strip(), F["h2"])
@@ -267,23 +271,100 @@ def build_workbook(R, brief_text, check_df, path):
         ws.set_column(2, 2, 10)
 
 
+def step(n, text):
+    print(f"[{n}/7] {text}", flush=True)
+
+
 def main():
+    import os
     OUT.mkdir(exist_ok=True)
-    R = engine.run(DATA / "Data (SINTETICO).xlsx", DATA / "Hotel responses (SINTETICO).xlsx", DATA / "imports")
+    mode = os.environ.get("BRIEF_MODE") or ("api" if os.environ.get("ANTHROPIC_API_KEY") else "file")
+
+    step(1, "Leer los archivos del destino (data/)")
+    step(2, "Revisar la estructura contra el esquema")
+    try:
+        R = engine.run(DATA / "Data (SINTETICO).xlsx", DATA / "Hotel responses (SINTETICO).xlsx", DATA / "imports")
+    except engine.StructureError as e:
+        print(f"   ESTRUCTURA CAMBIADA: {e}\n   La corrida se detiene; no se publica nada.")
+        sys.exit(2)
+    chk = R["check"]
+    print("   " + render_site.tr_check(chk.loc[chk.Check == "Rows read", "Result"].iloc[0]) + " · estructura OK")
+    step(3, "Revisar los datos")
+    for r in chk.query("Status == 'CHECK'").itertuples():
+        print(f"   alerta: {render_site.CHECK.get(r.Check, r.Check)}: {render_site.tr_check(r.Result)}")
+    step(4, "Correr las 6 consultas fijas")
     payload = brief_payload(R)
     (OUT / "brief_payload.json").write_text(json.dumps(payload, indent=1, ensure_ascii=False, default=str))
-    brief = (ROOT / "brief" / "brief_es.md").read_text()
-    check = check_brief(brief, payload)
-    bad = check[check["Found in results"] == "NO"]
-    if len(bad):
-        print("NUMBER CHECK FAILED: brief held\n", bad.to_string())
-        sys.exit(1)
+    print(f"   {len(R['fit'])} candidatos puntuados; {payload['lead_targeting']['priority']} prioritarios")
+
+    step(5, "Redactar el informe" + (" con la API de Claude" if mode == "api" else " (archivo brief/brief_es.md)"))
+    if mode == "api":
+        import brief_api
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            sys.exit("   Falta el secreto ANTHROPIC_API_KEY en el repositorio. La corrida se detiene.")
+        try:
+            brief, info = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", lambda t: check_brief(t, payload))
+        except RuntimeError as e:  # API down or refused: results still go out, the brief is held
+            print(f"   La API de Claude no respondió: {e}")
+            brief, info = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "error": str(e)}
+        source = f"Redactado por la API de Claude ({info['model']}) a partir de los resultados de las consultas"
+    else:
+        brief = (ROOT / "brief" / "brief_es.md").read_text()
+        info = {"model": None, "attempts": 0, "bad_numbers": []}
+        source = "Redactado por Claude a partir de los resultados de las consultas"
+
+    step(6, "Verificar cada cifra del informe")
+    if brief is not None:
+        check = check_brief(brief, payload)
+        bad = check[check["Found in results"] != "Yes"]
+        if len(bad):
+            brief = None
+            info["bad_numbers"] = bad["Number in brief"].tolist()
+    if brief is None:
+        check = pd.DataFrame([{"Number in brief": b, "Found in results": "NO"} for b in info["bad_numbers"]],
+                             columns=["Number in brief", "Found in results"])
+        why = f"cifras no encontradas en los resultados: {info['bad_numbers']}" if info["bad_numbers"] else "la API no respondió"
+        print(f"   INFORME RETENIDO: {why}")
+    else:
+        print(f"   {len(check)} de {len(check)} cifras encontradas en los resultados")
+        (OUT / "brief_es.md").write_text(brief, encoding="utf-8")
+
+    step(7, "Publicar los resultados")
     out = OUT / f"Results {R['S']['report_month']}.xlsx"
     build_workbook(R, brief, check, out)
     site = OUT / "site"
     site.mkdir(exist_ok=True)
-    (site / "index.html").write_text(render_site.render(R, brief, check, run_meta()), encoding="utf-8")
-    print("number check passed:", len(check), "numbers;", "wrote", out, "and", site / "index.html")
+    meta = run_meta()
+    meta["brief_source"] = os.environ.get("BRIEF_SOURCE_LABEL", source)
+    (site / "index.html").write_text(render_site.render(R, brief, check, meta), encoding="utf-8")
+    print(f"   {out.name} y site/index.html")
+    write_summary(R, payload, brief, check, info, meta)
+
+
+def write_summary(R, payload, brief, check, info, meta):
+    """Markdown summary for the GitHub Actions run page."""
+    import os
+    chk = R["check"]
+    g = payload["group_rn"]
+    lines = [
+        "## Corrida: Ixtapa-Zihuatanejo · " + payload["report_month"] + " · DATOS SINTÉTICOS",
+        "",
+        "| Paso | Resultado |", "|---|---|",
+        f"| Leer y revisar estructura | ✅ {render_site.tr_check(chk.loc[chk.Check == 'Rows read', 'Result'].iloc[0])} |",
+        f"| Revisar los datos | {'⚠️' if (chk.Status == 'CHECK').any() else '✅'} {int((chk.Status == 'CHECK').sum())} alertas |",
+        f"| 6 consultas fijas | ✅ {payload['lead_targeting']['priority']} prospectos prioritarios |",
+        f"| Informe | {'✅ ' + meta['brief_source'] if brief else '⛔ retenido'} |",
+        f"| Verificación de cifras | {'✅ ' + str(len(check)) + ' de ' + str(len(check)) if brief else ('⛔ no encontradas: ' + ', '.join(info['bad_numbers']) if info['bad_numbers'] else '⛔ la API no respondió')} |",
+        "",
+        f"Noches de grupo {payload['report_month']}: **{g['month']:,}** ({g['change']*100:+.1f}% contra el mismo mes del año pasado, {g['comparable_hotels']} hoteles comparables).",
+    ]
+    if brief:
+        lines += ["", "<details><summary>Informe</summary>", "", brief, "", "</details>"]
+    text = "\n".join(lines) + "\n"
+    (OUT / "run_summary.md").write_text(text, encoding="utf-8")
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+            fh.write(text)
 
 
 def run_meta():
@@ -298,7 +379,6 @@ def run_meta():
     return {
         "version": sha or "local",
         "data_source": os.environ.get("DATA_SOURCE_LABEL", "copias de los archivos del destino guardadas en el repositorio"),
-        "brief_source": os.environ.get("BRIEF_SOURCE_LABEL", "Redactado por Claude a partir de los resultados de las consultas"),
     }
 
 

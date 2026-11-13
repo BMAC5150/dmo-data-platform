@@ -1,0 +1,54 @@
+name: Corrida mensual (demo)
+
+on:
+  workflow_dispatch:
+    inputs:
+      brief:
+        description: "Quién redacta el informe"
+        type: choice
+        options: [api, archivo]
+        default: api
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corrida
+  cancel-in-progress: false
+
+jobs:
+  corrida:
+    name: Corrida Ixtapa-Zihuatanejo (DATOS SINTÉTICOS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obtener el código y los datos
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Probar las reglas fijas
+        run: python tests/test_engine.py
+
+      - name: Correr el motor y redactar el informe
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BRIEF_MODE: ${{ inputs.brief == 'archivo' && 'file' || 'api' }}
+          CLAUDE_MODEL: claude-sonnet-5-5
+        run: python src/build_results.py
+
+      - name: Guardar los resultados de la corrida
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-${{ github.run_number }}
+          path: out/
+          if-no-files-found: warn
+          retention-days: 30
