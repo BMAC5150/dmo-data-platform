@@ -1,0 +1,19 @@
+{
+  "data": {
+    "Leads": ["LeadID", "Received", "Organizer", "Sector", "Event type", "Origin", "Start date", "End date",
+              "Attendees", "Peak rooms", "Source", "Status", "Decision date", "Loss reason", "Lost to",
+              "Venues used", "Actual room nights", "Actual attendance"],
+    "Assets": ["Type", "Name", "Rooms", "Meeting rooms", "Meeting space (m2)", "Max capacity"],
+    "PublicData": ["Month", "Measure", "Value", "Source"],
+    "Lists": ["Hotels (form)", "Sectors", "Segments", "Origins", "Origin regions", "Event types", "Sources",
+              "Lead status", "Loss reasons", "Lost to"],
+    "Settings": ["Setting", "Value", "Note"]
+  },
+  "responses": {
+    "Form responses 1": ["Timestamp", "Hotel", "Month",
+      "Association - Domestic", "Association - International",
+      "Corporate - Domestic", "Corporate - International",
+      "Incentive - Domestic", "Incentive - International",
+      "Government & other - Domestic", "Government & other - International"]
+  }
+}

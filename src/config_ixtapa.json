@@ -1,0 +1,21 @@
+{
+  "dmo": "Ixtapa-Zihuatanejo (SINTÉTICO)",
+  "language": "es",
+  "drive": {
+    "shared_drive_id": "0AMHSr6m8TJ3SUk9PVA",
+    "imports_folder_id": "1u-23csAf6kV5ongkBa_LSXmkjoxhV_mE",
+    "outputs_folder_id": "1zoPXKnzPL1DZyG8lk7WNYLlOs38G38fQ"
+  },
+  "imports": {
+    "cvent": {
+      "match": "Cvent export",
+      "columns": {"Organization": "Organizer", "Industry": "Sector", "Preferred Start": "Start date",
+                  "Nights": "Nights", "Est. Attendees": "Attendees", "Peak Room Night": "Peak rooms"},
+      "date_format": "%m/%d/%Y",
+      "sector_map": {"Healthcare - Association": "Medical association", "Financial Services": "Insurance & finance",
+                     "Manufacturing": "Mexican corporate", "Retail": "Mexican corporate",
+                     "Public Sector": "Government", "Pharmaceutical": "Pharma", "Education": "Education",
+                     "Non-profit": "Religious"}
+    }
+  }
+}
