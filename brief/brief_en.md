@@ -12,7 +12,7 @@ October was a month of lost ground in groups. The destination filled more rooms 
 
 ## Three actions for November 2026
 1. **Close Grupo Financiero Cumbres.** Owner: Director · Deadline: before November 18, 2026 · At stake: 657 estimated room nights. It has been open 163 days: confirm the proposal or release the rooms. Sales also reviews the 10 leads open for more than 90 days and confirms or closes each one by November 30, 2026.
-2. **Secure September 2027 capacity with partner hotels for Corporativo Cedro, Laboratorios Sauce, Seguros Altavista and Grupo Cumbres.** Owner: Sales with partner hotels · Deadline: November 30, 2026 · At stake: 4,518 estimated room nights. Ask for tentative holds before quoting, so we do not compete with ourselves for the same dates.
+2. **Secure September 2027 capacity with partner hotels for Corporativo Cedro, Laboratorios Sauce, Seguros Altavista and Grupo Cumbres.** Owner: Sales with partner hotels · Deadline: November 30, 2026 · At stake: 1,458 estimated room nights at Corporativo Cedro, 912 at Laboratorios Sauce, 872 at Seguros Altavista and 662 at Grupo Cumbres. Ask for tentative holds before quoting, so we do not compete with ourselves for the same dates.
 3. **Take the groups we lost on air access to the airlines.** Owner: Director · Deadline: November 30, 2026 · At stake: 8,913 estimated room nights lost in 12 months. Sales lists the 14 groups with their home cities; the director presents the list to the airlines as real demand for routes and schedules.
 
 ## Watch

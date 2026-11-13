@@ -12,7 +12,7 @@ Octubre fue un mes de terreno perdido en grupos. El destino llenó más cuartos 
 
 ## Tres acciones para noviembre 2026
 1. **Cerrar a Grupo Financiero Cumbres.** Responsable: Dirección · Fecha límite: antes del 18 de noviembre de 2026 · En juego: 657 noches estimadas. Lleva 163 días abierta: confirmar la propuesta o liberar los cuartos. Ventas revisa además las 10 oportunidades abiertas hace más de 90 días y confirma o cierra cada una antes del 30 de noviembre de 2026.
-2. **Asegurar con los hoteles socios la capacidad de septiembre de 2027 para Corporativo Cedro, Laboratorios Sauce, Seguros Altavista y Grupo Cumbres.** Responsable: Ventas con Hoteles socios · Fecha límite: 30 de noviembre de 2026 · En juego: 4,518 noches estimadas. Pedir bloqueos tentativos antes de cotizar, para no competir entre nosotros por las mismas fechas.
+2. **Asegurar con los hoteles socios la capacidad de septiembre de 2027 para Corporativo Cedro, Laboratorios Sauce, Seguros Altavista y Grupo Cumbres.** Responsable: Ventas con Hoteles socios · Fecha límite: 30 de noviembre de 2026 · En juego: 1,458 noches estimadas en Corporativo Cedro, 912 en Laboratorios Sauce, 872 en Seguros Altavista y 662 en Grupo Cumbres. Pedir bloqueos tentativos antes de cotizar, para no competir entre nosotros por las mismas fechas.
 3. **Llevar a las aerolíneas los grupos que perdimos por acceso aéreo.** Responsable: Dirección · Fecha límite: 30 de noviembre de 2026 · En juego: 8,913 noches estimadas perdidas en 12 meses. Ventas arma la lista de los 14 grupos con su ciudad de origen; la Dirección la presenta a las aerolíneas como demanda real de rutas y horarios.
 
 ## Para vigilar

@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import build_results as b
 import engine
+import render_site
 
 D, H, I = ROOT / "data/Data (SINTETICO).xlsx", ROOT / "data/Hotel responses (SINTETICO).xlsx", ROOT / "data/imports"
 
@@ -238,6 +239,35 @@ def test_top_leads_carry_their_own_room_nights():
     rn = {r["Organizer"]: r["Est. room nights"] for r in p["lead_targeting"]["top_10"]}
     assert rn["Distribuidora Altavista"] == 390 and rn["Grupo Financiero Ceiba"] == 340
     assert rn["Colegio Cedro de Pediatría"] == 304
+
+
+def test_archive_keeps_every_run_and_never_overwrites():
+    import os, tempfile
+    R = engine.run(D, H, I)
+    briefs = {"es": "x", "en": "y"}
+    checks = {k: pd.DataFrame(columns=["Number in brief", "Found in results"]) for k in briefs}
+    meta = {"version": "test", "mode": "file", "model": None}
+    with tempfile.TemporaryDirectory() as tmp:
+        wb = Path(tmp) / "Results 2026-10.xlsx"
+        wb.write_bytes(b"xlsx")
+        arch = Path(tmp) / "arch"
+        assert b.read_archive(arch) == []
+        for n in (1, 2):
+            os.environ["GITHUB_RUN_NUMBER"] = str(n)
+            b.write_archive(arch, R, briefs, checks, {**meta, "previous_runs": b.read_archive(arch)}, wb)
+        runs = b.read_archive(arch)
+        assert [r["run"] for r in runs] == [2, 1], "newest first, both kept"
+        page = (arch / runs[0]["folder"] / "index.html").read_text()
+        assert 'url("../../../fonts/' in page and "Corrida archivada" in page
+        assert (arch / runs[1]["folder"] / "Results 2026-10.xlsx").exists()
+        try:
+            b.write_archive(arch, R, briefs, checks, meta, wb)
+            assert False, "must refuse to overwrite"
+        except RuntimeError:
+            pass
+        html = render_site.render(R, briefs, checks, {**meta, "previous_runs": runs})
+        assert "Corridas anteriores" in html and "Previous runs" in html and runs[1]["folder"] in html
+        os.environ.pop("GITHUB_RUN_NUMBER")
 
 
 if __name__ == "__main__":

@@ -400,8 +400,13 @@ def main():
     shutil.copytree(ROOT / "site_assets" / "fonts", site / "fonts", dirs_exist_ok=True)  # self-hosted fonts (SIL OFL)
     meta = run_meta()
     meta.update({"mode": mode, "model": model})
+    archive_dir = os.environ.get("ARCHIVE_DIR")
+    meta["previous_runs"] = read_archive(archive_dir) if archive_dir else []
     (site / "index.html").write_text(render_site.render(R, briefs, checks, meta), encoding="utf-8")
     print(f"   {out.name} y site/index.html")
+    if archive_dir:
+        folder = write_archive(archive_dir, R, briefs, checks, meta, out)
+        print(f"   archivo: {folder} (nueva carpeta; no se sobrescribe ninguna corrida anterior)")
     write_summary(R, payload, briefs, checks, infos, meta)
 
 
@@ -442,6 +447,45 @@ def write_summary(R, payload, briefs, checks, infos, meta):
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
             fh.write(text)
+
+
+# ------------------------------------------------------------------ archive: one dated folder per run, never overwritten
+ARCHIVE_INDEX = "archivo/index.json"
+
+
+def read_archive(archive_dir):
+    """Earlier runs saved in the archive (newest first). Missing or empty archive = no earlier runs."""
+    p = Path(archive_dir) / ARCHIVE_INDEX
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else []
+
+
+def write_archive(archive_dir, R, briefs, checks, meta, workbook):
+    """Save this run in its own dated folder: archivo/<report month>/<date>-corrida-<n>/.
+    Holds the page as it was published, the results workbook and both briefs. Adds the run to
+    archivo/index.json. Stops rather than overwrite a folder that already exists."""
+    import os
+    import shutil
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    now = datetime.now(ZoneInfo("America/Mexico_City"))
+    run = int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+    month = str(R["S"]["report_month"])
+    folder = f"archivo/{month}/{now:%Y-%m-%d}-corrida-{run}"
+    dest = Path(archive_dir) / folder
+    if dest.exists():
+        raise RuntimeError(f"La carpeta {folder} ya existe; el archivo nunca se sobrescribe.")
+    dest.mkdir(parents=True)
+    entry = {"month": month, "run": run, "date": now.isoformat(timespec="minutes"), "folder": folder,
+             "workbook": workbook.name, "version": meta.get("version"), "mode": meta.get("mode")}
+    archived_meta = {**meta, "root": "../../../", "archived": entry}  # three levels below the site root
+    (dest / "index.html").write_text(render_site.render(R, briefs, checks, archived_meta), encoding="utf-8")
+    shutil.copy2(workbook, dest / workbook.name)
+    for lang, text in briefs.items():
+        if text:
+            (dest / f"brief_{lang}.md").write_text(text, encoding="utf-8")
+    index = [entry] + read_archive(archive_dir)
+    (Path(archive_dir) / ARCHIVE_INDEX).write_text(json.dumps(index, indent=1, ensure_ascii=False), encoding="utf-8")
+    return folder
 
 
 def run_meta():

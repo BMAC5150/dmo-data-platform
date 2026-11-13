@@ -21,9 +21,17 @@ jobs:
     name: Corrida Ixtapa-Zihuatanejo (DATOS SINTÉTICOS)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write   # to save this run in the archivo branch
     steps:
       - name: Obtener el código y los datos
         uses: actions/checkout@v7
+
+      - name: Traer el archivo de corridas anteriores (rama archivo)
+        uses: actions/checkout@v7
+        with:
+          ref: archivo
+          path: archivo_repo
 
       - name: Preparar Python
         uses: actions/setup-python@v7
@@ -42,7 +50,20 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BRIEF_MODE: ${{ inputs.brief == 'archivo' && 'file' || 'api' }}
           CLAUDE_MODEL: claude-sonnet-5-5
+          ARCHIVE_DIR: archivo_repo
         run: python src/build_results.py
+
+      - name: Guardar esta corrida en el archivo (carpeta nueva con fecha)
+        working-directory: archivo_repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add archivo
+          git commit -q -m "Corrida #${{ github.run_number }} (${{ github.sha }})"
+          git push -q origin HEAD:archivo
+
+      - name: Incluir el archivo en la página
+        run: cp -R archivo_repo/archivo out/site/archivo
 
       - name: Guardar los resultados de la corrida
         if: always()
