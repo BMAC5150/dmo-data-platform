@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tablero compacto · Ixtapa-Zihuatanejo (datos sintéticos)</title>
+<style>
+@font-face{font-family:"Outfit";font-weight:400;font-display:swap;src:url("../fonts/outfit-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Outfit";font-weight:500;font-display:swap;src:url("../fonts/outfit-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:400;font-display:swap;src:url("../fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:500;font-display:swap;src:url("../fonts/hanken-grotesk-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:600;font-display:swap;src:url("../fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:700;font-display:swap;src:url("../fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2")}
+</style>
+<style>
+:root{--ocean:#0e2a33;--teal:#00839b;--gold:#c9801a;--mist:#f3f6f5;--ink:#14262c;--slate:#5d7178;--line:#dfe6e6;--soft:#edf1f1;
+--display:"Outfit","Avenir Next","Segoe UI",sans-serif;--sans:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--mist);overflow:hidden;color:var(--ink);font:400 14px/1.45 var(--sans);font-feature-settings:"tnum" 1,"lnum" 1}
+.stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+.page{height:900px;padding:24px 32px 14px;display:flex;flex-direction:column}
+.page>.grid.r2,.page>.grid.r3{flex:1;min-height:0}
+.card{overflow:hidden}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+h1{font:500 26px/1.1 var(--display);color:var(--ocean);margin:0;letter-spacing:-.01em}
+h1 span{color:var(--teal)}
+.meta{color:var(--slate);font-size:14px;display:flex;gap:10px;align-items:center}
+.syn{background:#fbecd3;color:#7a4a0c;font-weight:600;font-size:11.5px;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(6,1fr)}
+.r2{grid-template-columns:1fr 1fr;margin-top:16px;flex:1.05 !important}
+.r3{grid-template-columns:1fr 1fr 1fr;margin-top:16px;flex:1.25 !important}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;min-width:0}
+.kpi{gap:4px;padding:14px 16px}
+.k-l{color:var(--slate);font-size:13px;line-height:1.3}
+.k-v{font:600 30px/1.05 var(--sans);color:var(--ocean);letter-spacing:-.01em}
+.k-s{font-size:13px;color:var(--slate)}
+.d{font-weight:600}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+h2{font:500 17px/1.2 var(--display);margin:0;color:var(--ocean)}
+.hd-r{font-size:12.5px;color:var(--slate)}
+.big{font:600 26px/1 var(--sans);color:var(--teal)}
+.lg{font-size:12.5px;color:var(--slate);display:flex;align-items:center;gap:5px}
+.lg i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-left:8px}
+svg{width:100%;height:auto;display:block}
+svg .base{stroke:#b9c6c9;stroke-width:1}
+svg .ax{fill:var(--slate);font:500 13px var(--sans)}
+svg .ax.need{fill:#7a4a0c;font-weight:700}
+svg .vl{fill:var(--ink);font:700 13px var(--sans)}
+svg .bar:hover path{opacity:.8}
+.foot{margin:auto 0 0;padding-top:12px;font-size:12.5px;color:var(--slate)}
+.chip-need{display:inline-block;background:#fbecd3;color:#7a4a0c;font-weight:700;font-size:11px;border-radius:999px;padding:1px 7px;margin-right:4px}
+.score{font-size:13px;color:var(--slate);display:flex;align-items:center;gap:6px}
+.score b{font:700 15px var(--sans);width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+.score b.w{background:#2e9e64}.score b.l{background:#d0643f;margin-left:8px}
+.bid{display:grid;grid-template-columns:22px minmax(220px,1fr) 1.4fr 56px;gap:12px;align-items:center;padding:2px 0;font-size:13.5px}
+.bid-head{font-size:11.5px;color:var(--slate);padding:0}
+.ic{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.ic.w{background:#2e9e64}.ic.l{background:#d0643f}
+.bid-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bid-t{height:12px;position:relative}
+.bid-t i{position:absolute;inset:0 auto 0 0;border-radius:0 4px 4px 0}
+.bid-t i.w{background:#2e9e64}.bid-t i.l{background:#e8a48a}
+.bid-v{text-align:right;font-weight:600}
+.bid-head .bid-v{font-weight:400}
+.lt-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(0,2fr);gap:10px;align-items:center;padding:5px 0}
+.lt-head{font-size:11.5px;color:var(--slate);padding-bottom:0}
+.lt-yr{padding:0 0 4px}
+.lt-name{font-weight:600;font-size:13.5px}
+.lt-head .lt-name{font-weight:400;font-size:11.5px}
+.strip{display:grid;grid-template-columns:repeat(13,1fr);gap:3px}
+.strip span{height:22px;border-radius:5px;background:var(--soft);font-size:11.5px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+.strip span.on{background:var(--teal)}
+.strip.hdr span{background:none;color:var(--slate);font-weight:500;height:auto}
+.strip.hdr span.need{color:#7a4a0c;font-weight:700;background:#fbecd3;border-radius:999px}
+.strip.yrs{display:flex;justify-content:space-between}
+.strip.yrs span{background:none;color:var(--slate);font-size:10.5px;font-weight:500;height:auto}
+h3.sub{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin:12px 0 6px}
+ol.top{list-style:none;margin:0;padding:0}
+ol.top li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;padding:4px 0;font-size:13.5px}
+ol.top span{color:var(--slate);font-size:12.5px}
+ol.top em{font-style:normal;font-weight:600}
+.lz{display:grid;grid-template-columns:140px 1fr 52px;gap:10px;align-items:center;padding:6px 0;font-size:13.5px}
+.lz-t{height:14px;position:relative}
+.lz-t i{position:absolute;inset:0 auto 0 0;background:var(--gold);border-radius:0 5px 5px 0}
+.lz-t i.o{background:#e3d5bf}
+.lz-v{text-align:right;font-weight:600}
+.rivals{display:flex;flex-wrap:wrap;gap:8px}
+.rivals span{background:var(--soft);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--slate)}
+.rivals b{color:var(--ink);font-weight:600}
+.brief{background:#eef6f7;border-color:#cfe3e7}
+.brief h3{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin:2px 0 6px}
+ul.what{margin:0 0 14px;padding-left:18px}
+ul.what li{margin:0 0 4px;font-size:14px}
+ol.todo{list-style:none;margin:0;padding:0;counter-reset:a}
+ol.todo li{counter-increment:a;position:relative;padding:0 0 10px 34px;font-size:14px;line-height:1.35}
+ol.todo li::before{content:counter(a);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center}
+.who{display:block;font-size:11.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.04em}
+.note{margin:10px 2px 0;font-size:11.5px;color:var(--slate)}
+body.flow{overflow:auto}
+body.flow .stage{position:static;width:auto;height:auto}
+body.flow .page{height:auto;display:block}
+body.flow .card{overflow:visible}
+@media (max-width:819px){.kpis{grid-template-columns:repeat(2,1fr)}.r2,.r3{grid-template-columns:1fr}.page{padding:14px}.kpis{grid-template-columns:repeat(2,1fr)}.page{padding:14px}.bid{grid-template-columns:22px minmax(110px,1.4fr) 1fr 46px;gap:8px}.lt-row{grid-template-columns:96px minmax(0,2fr)}.lz{grid-template-columns:112px 1fr 48px}}
+</style></head>
+<body><div class="stage" id="stage"><div class="page">
+<header><h1>Eventos de negocios <span>· Ixtapa-Zihuatanejo</span></h1>
+  <div class="meta">Octubre de 2026 <span class="syn">DATOS SINTÉTICOS</span></div></header>
+<div class="grid kpis"><div class="card kpi"><span class="k-l">Noches de grupo, octubre</span><b class="k-v">8,580</b><span class="k-s"><span class="d" style="color:#b4441c">▼ 4.8%</span> vs 2025</span></div><div class="card kpi"><span class="k-l">Noches de grupo en el año</span><b class="k-v">79,866</b><span class="k-s"><span class="d" style="color:#1b7a4a">▲ 1.4%</span> vs 2025</span></div><div class="card kpi"><span class="k-l">Ocupación hotelera, octubre</span><b class="k-v">52.4%</b><span class="k-s"><span class="d" style="color:#1b7a4a">▲ 4.9 pts</span> vs 2025</span></div><div class="card kpi"><span class="k-l">Oportunidades nuevas, octubre</span><b class="k-v">12</b><span class="k-s"><span class="d" style="color:#1b7a4a">▲ 50.0%</span> vs 2025</span></div><div class="card kpi"><span class="k-l">Propuestas ganadas, 12 meses</span><b class="k-v">28%</b><span class="k-s">26 de 92</span></div><div class="card kpi"><span class="k-l">Hoteles que reportaron</span><b class="k-v">7 de 8</b><span class="k-s"><span class="d" style="color:#b4441c">Falta Cerro Verde</span></span></div></div>
+<div class="grid r2"><div class="card">
+  <div class="hd"><h2>Noches de grupo por mes</h2>
+    <span class="lg"><i style="background:#00839b"></i>2026<i style="background:#c8d5d8"></i>2025</span></div>
+  <svg viewBox="0 0 760 232" role="img" aria-label="Noches de grupo por mes, 2025 y 2026"><line x1="6" x2="760" y1="198" y2="198" class="base"/><g class="bar"><title>ene 2025: 8,365 noches de grupo</title><path d="M13.0,198 v-135.4 q0,-3 3,-3 h21.2 q3,0 3,3 v135.4 z" fill="#c8d5d8"/><rect x="12.0" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>ene 2026: 8,258 noches de grupo</title><path d="M42.2,198 v-133.6 q0,-3 3,-3 h21.2 q3,0 3,3 v133.6 z" fill="#00839b"/><rect x="41.2" y="16" width="29.2" height="182" fill="transparent"/></g><text x="41.2" y="217" text-anchor="middle" class="ax">E</text><g class="bar"><title>feb 2025: 9,926 noches de grupo</title><path d="M75.5,198 v-161.2 q0,-3 3,-3 h21.2 q3,0 3,3 v161.2 z" fill="#c8d5d8"/><rect x="74.5" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>feb 2026: 10,107 noches de grupo</title><path d="M104.8,198 v-164.2 q0,-3 3,-3 h21.2 q3,0 3,3 v164.2 z" fill="#00839b"/><rect x="103.8" y="16" width="29.2" height="182" fill="transparent"/></g><text x="103.8" y="217" text-anchor="middle" class="ax">F</text><g class="bar"><title>mar 2025: 10,096 noches de grupo</title><path d="M138.0,198 v-164.0 q0,-3 3,-3 h21.2 q3,0 3,3 v164.0 z" fill="#c8d5d8"/><rect x="137.0" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>mar 2026: 10,472 noches de grupo</title><path d="M167.2,198 v-170.3 q0,-3 3,-3 h21.2 q3,0 3,3 v170.3 z" fill="#00839b"/><rect x="166.2" y="16" width="29.2" height="182" fill="transparent"/></g><text x="166.2" y="217" text-anchor="middle" class="ax">M</text><g class="bar"><title>abr 2025: 7,232 noches de grupo</title><path d="M200.5,198 v-116.7 q0,-3 3,-3 h21.2 q3,0 3,3 v116.7 z" fill="#c8d5d8"/><rect x="199.5" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>abr 2026: 7,257 noches de grupo</title><path d="M229.8,198 v-117.1 q0,-3 3,-3 h21.2 q3,0 3,3 v117.1 z" fill="#00839b"/><rect x="228.8" y="16" width="29.2" height="182" fill="transparent"/></g><text x="228.8" y="217" text-anchor="middle" class="ax">A</text><g class="bar"><title>may 2025: 8,934 noches de grupo</title><path d="M263.0,198 v-144.8 q0,-3 3,-3 h21.2 q3,0 3,3 v144.8 z" fill="#c8d5d8"/><rect x="262.0" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>may 2026: 9,410 noches de grupo</title><path d="M292.2,198 v-152.7 q0,-3 3,-3 h21.2 q3,0 3,3 v152.7 z" fill="#00839b"/><rect x="291.2" y="16" width="29.2" height="182" fill="transparent"/></g><rect x="261.0" y="202" width="60.5" height="22" rx="11" fill="#fbecd3"/><text x="291.2" y="217" text-anchor="middle" class="ax need">M</text><g class="bar"><title>jun 2025: 8,022 noches de grupo</title><path d="M325.5,198 v-129.7 q0,-3 3,-3 h21.2 q3,0 3,3 v129.7 z" fill="#c8d5d8"/><rect x="324.5" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>jun 2026: 8,328 noches de grupo</title><path d="M354.8,198 v-134.8 q0,-3 3,-3 h21.2 q3,0 3,3 v134.8 z" fill="#00839b"/><rect x="353.8" y="16" width="29.2" height="182" fill="transparent"/></g><rect x="323.5" y="202" width="60.5" height="22" rx="11" fill="#fbecd3"/><text x="353.8" y="217" text-anchor="middle" class="ax need">J</text><g class="bar"><title>jul 2025: 5,521 noches de grupo</title><path d="M388.0,198 v-88.3 q0,-3 3,-3 h21.2 q3,0 3,3 v88.3 z" fill="#c8d5d8"/><rect x="387.0" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>jul 2026: 5,521 noches de grupo</title><path d="M417.2,198 v-88.3 q0,-3 3,-3 h21.2 q3,0 3,3 v88.3 z" fill="#00839b"/><rect x="416.2" y="16" width="29.2" height="182" fill="transparent"/></g><text x="416.2" y="217" text-anchor="middle" class="ax">J</text><g class="bar"><title>ago 2025: 5,360 noches de grupo</title><path d="M450.5,198 v-85.7 q0,-3 3,-3 h21.2 q3,0 3,3 v85.7 z" fill="#c8d5d8"/><rect x="449.5" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>ago 2026: 5,649 noches de grupo</title><path d="M479.8,198 v-90.5 q0,-3 3,-3 h21.2 q3,0 3,3 v90.5 z" fill="#00839b"/><rect x="478.8" y="16" width="29.2" height="182" fill="transparent"/></g><text x="478.8" y="217" text-anchor="middle" class="ax">A</text><g class="bar"><title>sep 2025: 6,282 noches de grupo</title><path d="M513.0,198 v-100.9 q0,-3 3,-3 h21.2 q3,0 3,3 v100.9 z" fill="#c8d5d8"/><rect x="512.0" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>sep 2026: 6,284 noches de grupo</title><path d="M542.2,198 v-101.0 q0,-3 3,-3 h21.2 q3,0 3,3 v101.0 z" fill="#00839b"/><rect x="541.2" y="16" width="29.2" height="182" fill="transparent"/></g><rect x="511.0" y="202" width="60.5" height="22" rx="11" fill="#fbecd3"/><text x="541.2" y="217" text-anchor="middle" class="ax need">S</text><g class="bar"><title>oct 2025: 9,009 noches de grupo</title><path d="M575.5,198 v-146.1 q0,-3 3,-3 h21.2 q3,0 3,3 v146.1 z" fill="#c8d5d8"/><rect x="574.5" y="16" width="29.2" height="182" fill="transparent"/></g><g class="bar"><title>oct 2026: 8,580 noches de grupo</title><path d="M604.8,198 v-139.0 q0,-3 3,-3 h21.2 q3,0 3,3 v139.0 z" fill="#c9801a"/><rect x="603.8" y="16" width="29.2" height="182" fill="transparent"/></g><rect x="573.5" y="202" width="60.5" height="22" rx="11" fill="#fbecd3"/><text x="603.8" y="217" text-anchor="middle" class="ax need">O</text><g class="bar"><title>nov 2025: 9,824 noches de grupo</title><path d="M638.0,198 v-159.5 q0,-3 3,-3 h21.2 q3,0 3,3 v159.5 z" fill="#c8d5d8"/><rect x="637.0" y="16" width="29.2" height="182" fill="transparent"/></g><rect x="636.0" y="202" width="60.5" height="22" rx="11" fill="#fbecd3"/><text x="666.2" y="217" text-anchor="middle" class="ax need">N</text><g class="bar"><title>dic 2025: 4,570 noches de grupo</title><path d="M700.5,198 v-72.6 q0,-3 3,-3 h21.2 q3,0 3,3 v72.6 z" fill="#c8d5d8"/><rect x="699.5" y="16" width="29.2" height="182" fill="transparent"/></g><text x="728.8" y="217" text-anchor="middle" class="ax">D</text><text x="618.4" y="50.0" text-anchor="middle" class="vl">8,580</text></svg>
+  <p class="foot"><span class="chip-need">M</span> Meses de baja ocupación: ahí hacen falta grupos.</p>
+</div><div class="card">
+  <div class="hd"><h2>Propuestas decididas en octubre</h2>
+    <span class="score"><b class="w">1</b> ganada <b class="l">7</b> perdidas</span></div>
+  <div class="bid" title="Colegio Cumbres de Pediatría: ganada, 877 noches"><span class="ic w">✓</span><span class="bid-n">Colegio Cumbres de Pediatría</span><span class="bid-t"><i class="w" style="width:44.6%"></i></span><span class="bid-v">877</span></div><div class="bid" title="Grupo Financiero Fresno: perdida, 1,965 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Grupo Financiero Fresno</span><span class="bid-t"><i class="l" style="width:100.0%"></i></span><span class="bid-v">1,965</span></div><div class="bid" title="Asociación Cedro de Ortopedia: perdida, 1,828 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Asociación Cedro de Ortopedia</span><span class="bid-t"><i class="l" style="width:93.0%"></i></span><span class="bid-v">1,828</span></div><div class="bid" title="Sociedad Tule de Cardiología: perdida, 928 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Sociedad Tule de Cardiología</span><span class="bid-t"><i class="l" style="width:47.2%"></i></span><span class="bid-v">928</span></div><div class="bid" title="Laboratorios Álamo: perdida, 747 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Laboratorios Álamo</span><span class="bid-t"><i class="l" style="width:38.0%"></i></span><span class="bid-v">747</span></div><div class="bid" title="Laboratorios Tule: perdida, 458 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Laboratorios Tule</span><span class="bid-t"><i class="l" style="width:23.3%"></i></span><span class="bid-v">458</span></div><div class="bid" title="Secretaría Estatal Tule: perdida, 426 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Secretaría Estatal Tule</span><span class="bid-t"><i class="l" style="width:21.7%"></i></span><span class="bid-v">426</span></div><div class="bid" title="Secretaría Estatal Altavista: perdida, 268 noches estimadas"><span class="ic l">✕</span><span class="bid-n">Secretaría Estatal Altavista</span><span class="bid-t"><i class="l" style="width:13.6%"></i></span><span class="bid-v">268</span></div>
+  <p class="foot">Ganamos 877 noches y perdimos unas 6,620.</p>
+</div></div>
+<div class="grid r3"><div class="card">
+  <div class="hd"><h2>Prospectos prioritarios</h2><span class="big">20</span></div>
+  <div class="lt-row lt-head"><div class="lt-name">Fecha del evento</div><div class="strip hdr"><span class="need">N</span><span class="">D</span><span class="">E</span><span class="">F</span><span class="">M</span><span class="">A</span><span class="need">M</span><span class="need">J</span><span class="">J</span><span class="">A</span><span class="need">S</span><span class="need">O</span><span class="need">N</span></div></div>
+  <div class="lt-row lt-yr"><div></div><div class="strip yrs"><span>2026</span><span>2027</span></div></div>
+  <div class="lt-row"><div class="lt-name">Corporativo mexicano</div><div class="strip"><span class="" title="nov 2026: 0"></span><span class="" title="dic 2026: 0"></span><span class="" title="ene 2027: 0"></span><span class="" title="feb 2027: 0"></span><span class="" title="mar 2027: 0"></span><span class="" title="abr 2027: 0"></span><span class="" title="may 2027: 0"></span><span class="on" title="jun 2027: 2">2</span><span class="" title="jul 2027: 0"></span><span class="" title="ago 2027: 0"></span><span class="on" title="sep 2027: 4">4</span><span class="" title="oct 2027: 0"></span><span class="on" title="nov 2027: 2">2</span></div></div><div class="lt-row"><div class="lt-name">Asociación médica</div><div class="strip"><span class="" title="nov 2026: 0"></span><span class="" title="dic 2026: 0"></span><span class="" title="ene 2027: 0"></span><span class="" title="feb 2027: 0"></span><span class="" title="mar 2027: 0"></span><span class="" title="abr 2027: 0"></span><span class="on" title="may 2027: 2">2</span><span class="on" title="jun 2027: 2">2</span><span class="" title="jul 2027: 0"></span><span class="" title="ago 2027: 0"></span><span class="" title="sep 2027: 0"></span><span class="on" title="oct 2027: 2">2</span><span class="" title="nov 2027: 0"></span></div></div><div class="lt-row"><div class="lt-name">Seguros y finanzas</div><div class="strip"><span class="on" title="nov 2026: 1">1</span><span class="" title="dic 2026: 0"></span><span class="" title="ene 2027: 0"></span><span class="" title="feb 2027: 0"></span><span class="" title="mar 2027: 0"></span><span class="" title="abr 2027: 0"></span><span class="on" title="may 2027: 1">1</span><span class="on" title="jun 2027: 1">1</span><span class="" title="jul 2027: 0"></span><span class="" title="ago 2027: 0"></span><span class="on" title="sep 2027: 1">1</span><span class="" title="oct 2027: 0"></span><span class="on" title="nov 2027: 1">1</span></div></div><div class="lt-row"><div class="lt-name">Farmacéutico</div><div class="strip"><span class="" title="nov 2026: 0"></span><span class="" title="dic 2026: 0"></span><span class="" title="ene 2027: 0"></span><span class="" title="feb 2027: 0"></span><span class="" title="mar 2027: 0"></span><span class="" title="abr 2027: 0"></span><span class="" title="may 2027: 0"></span><span class="" title="jun 2027: 0"></span><span class="" title="jul 2027: 0"></span><span class="" title="ago 2027: 0"></span><span class="on" title="sep 2027: 1">1</span><span class="" title="oct 2027: 0"></span><span class="" title="nov 2027: 0"></span></div></div>
+  <h3 class="sub">Los más grandes</h3>
+  <ol class="top"><li><b>Corporativo Cedro</b><span>sep 2027</span><em>1,458 noches</em></li><li><b>Laboratorios Sauce</b><span>sep 2027</span><em>912 noches</em></li><li><b>Seguros Altavista</b><span>sep 2027</span><em>872 noches</em></li></ol>
+</div><div class="card">
+  <div class="hd"><h2>Por qué perdemos</h2><span class="hd-r">noches perdidas en 12 meses</span></div>
+  <div class="lz" title="Acceso aéreo: 8,913 noches estimadas"><span class="lz-l">Acceso aéreo</span><span class="lz-t"><i class="" style="width:100.0%"></i></span><span class="lz-v">8,913</span></div><div class="lz" title="Sede insuficiente: 7,978 noches estimadas"><span class="lz-l">Sede insuficiente</span><span class="lz-t"><i class="" style="width:89.5%"></i></span><span class="lz-v">7,978</span></div><div class="lz" title="Precio: 6,640 noches estimadas"><span class="lz-l">Precio</span><span class="lz-t"><i class="" style="width:74.5%"></i></span><span class="lz-v">6,640</span></div><div class="lz" title="Percepción de seguridad: 5,348 noches estimadas"><span class="lz-l">Percepción de seguridad</span><span class="lz-t"><i class="" style="width:60.0%"></i></span><span class="lz-v">5,348</span></div>
+  <h3 class="sub">Quién nos gana</h3>
+  <div class="rivals"><span><b>Puerto Vallarta</b> 17</span><span><b>Huatulco</b> 15</span><span><b>Riviera Maya</b> 11</span></div>
+</div><div class="card brief">
+  <div class="hd"><h2>Informe de octubre</h2></div>
+  <h3>Qué pasó</h3><ul class="what"><li>Las asociaciones cayeron 28.9%.</li><li>El acceso aéreo nos cuesta más noches que el precio.</li></ul>
+  <h3>Qué hacer</h3><ol class="todo"><li><span class="who">Ventas · 6 nov</span>Cerrar Grupo Financiero Cumbres (657 noches).</li><li><span class="who">Hoteles socios · 30 nov</span>Confirmar cupo en septiembre de 2027 para Cedro, Altavista y Grupo Cumbres.</li><li><span class="who">Ventas · 30 nov</span>Presentar el destino a Laboratorios Sauce y Seguros Mezquite.</li></ol>
+  <p class="foot">Redactado por IA con los resultados del mes. Cifras verificadas.</p>
+</div></div>
+<p class="note">Datos sintéticos para demostración: hoteles, grupos y cifras inventados. Noches de grupo: mismos 7 hoteles en ambos años. Noches perdidas y de prospectos: estimadas.</p>
+</div></div>
+<script>
+(function(){var st=document.getElementById('stage');
+function fit(){if(window.innerWidth<820){document.body.classList.add('flow');st.style.transform='';return;}
+document.body.classList.remove('flow');
+var k=Math.min(window.innerWidth/1600,window.innerHeight/900);
+st.style.transform='translate('+((window.innerWidth-1600*k)/2)+'px,'+((window.innerHeight-900*k)/2)+'px) scale('+k+')';}
+window.addEventListener('resize',fit);fit();})();
+</script><button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs{display:none}</style><script>(function(){function fs(){var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if(e.key==='f'||e.key==='F')fs();if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')location.href='informe.html';});})();</script></body></html>

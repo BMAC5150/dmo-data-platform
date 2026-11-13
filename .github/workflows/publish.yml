@@ -1,6 +1,7 @@
 name: Publicar sin correr (demo)
 
-# Republishes the site of an earlier run exactly as it was, plus the partner portal at /portal/.
+# Republishes the site of an earlier run exactly as it was, plus the partner portal at /portal/ and the two
+# 16:9 presentation views at /presentacion/ (a bar at the top of the Tablero tab links to them; nothing else changes).
 # Does not run the engine or call the Claude API: the dashboard and the brief stay byte for byte the same.
 
 on:
@@ -46,6 +47,11 @@ jobs:
         run: |
           mkdir -p prev/site/portal
           cp portal/index.html prev/site/portal/index.html
+
+      - name: Añadir las vistas para presentar (16:9)
+        run: |
+          python3 tools/add_presentation_views.py prev/site
+          echo "Más las vistas para presentar en /presentacion/ (botones en la pestaña Tablero)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preparar la página para publicar
         uses: actions/upload-pages-artifact@v5

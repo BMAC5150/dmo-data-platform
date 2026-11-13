@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Informe de octubre · Ixtapa-Zihuatanejo (datos sintéticos)</title>
+<style>
+@font-face{font-family:"Outfit";font-weight:400;font-display:swap;src:url("../fonts/outfit-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Outfit";font-weight:500;font-display:swap;src:url("../fonts/outfit-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:400;font-display:swap;src:url("../fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:500;font-display:swap;src:url("../fonts/hanken-grotesk-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:600;font-display:swap;src:url("../fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:700;font-display:swap;src:url("../fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2")}
+</style>
+<style>
+:root{--ocean:#0e2a33;--teal:#00839b;--gold:#c9801a;--mist:#f3f6f5;--ink:#14262c;--slate:#5d7178;--line:#dfe6e6;--soft:#edf1f1;
+--display:"Outfit","Avenir Next","Segoe UI",sans-serif;--sans:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 15px/1.4 var(--sans);font-feature-settings:"tnum" 1,"lnum" 1;overflow:hidden}
+.stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+.page{height:900px;padding:26px 34px 16px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:baseline;justify-content:space-between}
+h1{font:500 28px/1.1 var(--display);color:var(--ocean);margin:0}
+h1 span{color:var(--teal)}
+.meta{color:var(--slate);font-size:14px;display:flex;gap:10px;align-items:center}
+.syn{background:#fbecd3;color:#7a4a0c;font-weight:600;font-size:11.5px;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;min-width:0}
+.band{background:var(--ocean);color:#fff;border-radius:12px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.band h2{font:500 30px/1.15 var(--display);margin:0;max-width:560px}
+.band h2 small{display:block;font:500 12px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#9fc3ca;margin-bottom:6px}
+.mks{display:flex;gap:10px}
+.mk{background:#fff;border-radius:10px;padding:10px 16px;min-width:170px;display:flex;flex-direction:column;gap:2px}
+.mk-l{color:var(--slate);font-size:12.5px}
+.mk b{font:700 26px/1.1 var(--sans)}
+.sec{font:700 12px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--slate);margin:0 0 -8px 2px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:1;min-height:0}
+.find{display:flex;flex-direction:column}
+.f-top{display:flex;align-items:center;gap:12px}
+.f-n{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--slate);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+.f-big{font:600 42px/1 var(--sans);letter-spacing:-.01em}
+.t-down .f-big{color:#b4441c}.t-gold .f-big{color:#a8670f}.t-teal .f-big{color:var(--teal)}
+.find h3,.act h3{font:500 20px/1.25 var(--display);color:var(--ocean);margin:8px 0 10px}
+.fb{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:8px;font-size:14px;color:var(--slate);margin:6px 0;position:relative}
+.fb i{height:18px;border-radius:0 5px 5px 0;display:block}
+.fb b{position:absolute;right:0;color:var(--ink);font-size:15px}
+.unit{margin:auto 0 0;padding-top:6px;font-size:12.5px;color:var(--slate)}
+.ftext{margin:0;font-size:16.5px;line-height:1.45}
+.act{display:flex;flex-direction:column;border-top:4px solid var(--teal)}
+.a-top{display:flex;align-items:center;gap:10px}
+.a-n{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.who{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+.when{margin-left:auto;background:#fbecd3;color:#7a4a0c;font-weight:600;font-size:12.5px;padding:3px 10px;border-radius:999px}
+.stakes{display:flex;gap:26px;flex-wrap:wrap}
+.st{display:flex;flex-direction:column}
+.st b{font:600 34px/1.05 var(--sans);color:var(--ocean)}
+.st span{font-size:13.5px;color:var(--slate)}
+.a-note{margin:auto 0 0;padding-top:10px;font-size:14px;color:var(--slate)}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mini{padding:12px 18px;display:flex;gap:16px;align-items:flex-start}
+.mini h4{font:700 11.5px var(--sans);letter-spacing:.09em;text-transform:uppercase;margin:3px 0 0;white-space:nowrap;min-width:108px}
+.mini ul{margin:0;padding-left:16px;font-size:14.5px}
+.mini li{margin:1px 0}
+.watch h4{color:#a8670f}.notes h4{color:var(--slate)}
+.foot{font-size:11.5px;color:var(--slate);margin:0}
+body.flow{overflow:auto}
+body.flow .stage{position:static;width:auto;height:auto}
+body.flow .page{height:auto}
+@media (max-width:819px){.row,.bottom{grid-template-columns:1fr}.band{flex-direction:column;align-items:flex-start}.mks{flex-wrap:wrap}.mk{min-width:140px}.page{padding:14px}.mini{flex-direction:column;gap:4px}}
+</style></head>
+<body><div class="stage" id="stage"><div class="page">
+<header><h1>Informe de octubre <span>· Ixtapa-Zihuatanejo</span></h1>
+  <div class="meta">Eventos de negocios, octubre de 2026 <span class="syn">DATOS SINTÉTICOS</span></div></header>
+<div class="band"><h2><small>Lectura del mes · contra octubre de 2025</small>Perdimos terreno en un mes en que el mercado ganó.</h2>
+  <div class="mks"><div class="mk"><span class="mk-l">Noches de grupo</span><b style="color:#b4441c">▼ 4.8%</b></div><div class="mk"><span class="mk-l">Ocupación hotelera</span><b style="color:#1b7a4a">▲ 4.9 pts</b></div><div class="mk"><span class="mk-l">Asientos aéreos</span><b style="color:#b4441c">▼ 2.6%</b></div><div class="mk"><span class="mk-l">Oportunidades nuevas</span><b style="color:#1b7a4a">▲ 50.0%</b></div></div></div>
+<p class="sec">Tres hallazgos</p>
+<div class="row"><div class="card find t-down"><div class="f-top"><span class="f-n">1</span><b class="f-big">−28.9%</b></div><h3>Las asociaciones explican la caída</h3><div class="fb"><span>oct 2025</span><i style="width:78.0%;background:#c8d5d8"></i><b>2,698</b></div><div class="fb"><span>oct 2026</span><i style="width:55.5%;background:#d0643f"></i><b>1,919</b></div><p class="unit">noches de grupo</p></div><div class="card find t-gold"><div class="f-top"><span class="f-n">2</span><b class="f-big">8,913</b></div><h3>El acceso aéreo nos cuesta más que el precio</h3><div class="fb"><span>Acceso aéreo</span><i style="width:78.0%;background:#c9801a"></i><b>8,913</b></div><div class="fb"><span>Precio</span><i style="width:58.1%;background:#e3cfae"></i><b>6,640</b></div><p class="unit">noches estimadas perdidas, 12 meses</p></div><div class="card find t-teal"><div class="f-top"><span class="f-n">3</span><b class="f-big">10</b></div><h3>Oportunidades con más de 90 días abiertas</h3><p class="ftext">La más urgente: <b>Grupo Financiero Cumbres</b>, 163 días abierta y evento el 18 de noviembre.</p></div></div>
+<p class="sec">Tres acciones para noviembre · noches estimadas en juego</p>
+<div class="row"><div class="card act"><div class="a-top"><span class="a-n">1</span><span class="who">Ventas</span><span class="when">antes del 6 nov</span></div><h3>Cerrar Grupo Financiero Cumbres</h3><div class="stakes"><div class="st"><b>657</b><span>Grupo Financiero Cumbres</span></div></div><p class="a-note">Coincide con Industrias Olmo (ganado): suman 444 habitaciones pico.</p></div><div class="card act"><div class="a-top"><span class="a-n">2</span><span class="who">Hoteles socios</span><span class="when">antes del 30 nov</span></div><h3>Confirmar cupo en septiembre de 2027</h3><div class="stakes"><div class="st"><b>1,458</b><span>Corporativo Cedro</span></div><div class="st"><b>872</b><span>Seguros Altavista</span></div><div class="st"><b>662</b><span>Grupo Cumbres</span></div></div><p class="a-note">Coinciden: suman 1,035 habitaciones pico la noche más cargada.</p></div><div class="card act"><div class="a-top"><span class="a-n">3</span><span class="who">Ventas</span><span class="when">antes del 30 nov</span></div><h3>Presentar el destino</h3><div class="stakes"><div class="st"><b>912</b><span>Laboratorios Sauce</span></div><div class="st"><b>381</b><span>Seguros Mezquite</span></div></div><p class="a-note">Meses de necesidad sin grupos ganados.</p></div></div>
+<div class="bottom">
+  <div class="card mini watch"><h4>Para vigilar</h4><ul><li><b>Diciembre de 2026</b>: 0 oportunidades abiertas.</li><li><b>Colegio Encino</b> (3,764 noches est.): demasiado grande; cerrar o liberar.</li></ul></div>
+  <div class="card mini notes"><h4>Datos</h4><ul><li><b>Hotel Cerro Verde</b> no envió octubre: pedírselo.</li><li><b>L-0119</b> abierta con fecha pasada: corregir.</li></ul></div>
+</div>
+<p class="foot">Datos sintéticos: hoteles, grupos y cifras inventados. Redactado por IA (Claude) a partir de los resultados de la corrida #10; 71 de 71 cifras verificadas.</p>
+</div></div>
+<script>
+(function(){var st=document.getElementById('stage');
+function fit(){if(window.innerWidth<820){document.body.classList.add('flow');st.style.transform='';return;}
+document.body.classList.remove('flow');
+var k=Math.min(window.innerWidth/1600,window.innerHeight/900);
+st.style.transform='translate('+((window.innerWidth-1600*k)/2)+'px,'+((window.innerHeight-900*k)/2)+'px) scale('+k+')';}
+window.addEventListener('resize',fit);fit();})();
+</script><button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs{display:none}</style><script>(function(){function fs(){var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if(e.key==='f'||e.key==='F')fs();if(e.key==='ArrowLeft'||e.key==='PageUp')location.href='tablero.html';});})();</script></body></html>
