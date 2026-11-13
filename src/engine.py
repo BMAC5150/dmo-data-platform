@@ -382,6 +382,63 @@ def q_insights(leads, fit, occ, S, stale_days=90):
     }
 
 
+def q_scorecard(long, leads, public, trend, S):
+    """Month performance in relative terms: each row is this period, its comparison period and the change."""
+    rm, ly = S["report_month"], S["report_month"] - 12
+    comp = set(long.loc[long.Month == rm, "Hotel"]) & set(long.loc[long.Month == ly, "Hotel"])
+    base = long[long.Hotel.isin(comp)]
+    jan, jan_ly = pd.Period(f"{rm.year}-01", "M"), pd.Period(f"{ly.year}-01", "M")
+    ytd = int(base.loc[(base.Month >= jan) & (base.Month <= rm), "rn"].sum())
+    ytd_ly = int(base.loc[(base.Month >= jan_ly) & (base.Month <= ly), "rn"].sum())
+    seg = trend["segment"].set_index("Segment")
+
+    pub = public.copy()
+    pub["Month"] = pub["Month"].astype(str).str[:7]
+    pub["Value"] = pd.to_numeric(pub["Value"], errors="coerce")
+    def pv(measure, m):
+        v = pub.loc[(pub.Measure == measure) & (pub.Month == str(m)), "Value"]
+        return float(v.iloc[0]) if len(v) else None
+
+    rec = leads["Received"].dt.to_period("M")
+    rec_m, rec_m_ly = int((rec == rm).sum()), int((rec == ly).sum())
+    rec_ytd = int(((rec >= jan) & (rec <= rm)).sum())
+    rec_ytd_ly = int(((rec >= jan_ly) & (rec <= ly)).sum())
+
+    d = last_12(leads, S)
+    tgt = d[d.Sector.isin(S["targets"])]
+    oth = d[~d.Sector.isin(S["targets"])]
+    def wr(g):
+        return round((g.Status == "Won").sum() / len(g), 3) if len(g) >= S["min_n"] else None
+
+    def rel(a, b):
+        return round(a / b - 1, 3) if b else None
+
+    occ, occ_ly = pv("Hotel occupancy (%)", rm), pv("Hotel occupancy (%)", ly)
+    air, air_ly = pv("Scheduled air seats (arrivals)", rm), pv("Scheduled air seats (arrivals)", ly)
+    rows = [
+        {"metric": "group_room_nights_month", "label": f"Noches de grupo, {rm} vs {ly}", "value": int(seg.loc["Total", str(rm)]),
+         "comparison": int(seg.loc["Total", str(ly)]), "change": seg.loc["Total", "Change"], "change_type": "pct",
+         "note": f"{len(comp)} hoteles comparables"},
+        {"metric": "group_room_nights_ytd", "label": f"Noches de grupo, enero a {rm} vs mismo periodo {ly.year}", "value": ytd,
+         "comparison": ytd_ly, "change": rel(ytd, ytd_ly), "change_type": "pct", "note": f"{len(comp)} hoteles comparables"},
+        {"metric": "group_room_nights_12m", "label": "Noches de grupo, últimos 12 meses vs 12 anteriores", "value": trend["ttm"],
+         "comparison": trend["prior_ttm"], "change": trend["ttm_change"], "change_type": "pct", "note": f"{len(comp)} hoteles comparables"},
+        {"metric": "hotel_occupancy_month", "label": f"Ocupación hotelera del destino, {rm} vs {ly}", "value": occ,
+         "comparison": occ_ly, "change": round(occ - occ_ly, 1) if occ is not None and occ_ly is not None else None,
+         "change_type": "points", "note": "todos los hoteles; datos públicos"},
+        {"metric": "air_seats_month", "label": f"Asientos aéreos programados (llegadas), {rm} vs {ly}", "value": air,
+         "comparison": air_ly, "change": rel(air, air_ly) if air and air_ly else None, "change_type": "pct", "note": "datos públicos"},
+        {"metric": "leads_received_month", "label": f"Oportunidades recibidas, {rm} vs {ly}", "value": rec_m,
+         "comparison": rec_m_ly, "change": rel(rec_m, rec_m_ly), "change_type": "pct", "note": ""},
+        {"metric": "leads_received_ytd", "label": f"Oportunidades recibidas, enero a {rm} vs mismo periodo {ly.year}", "value": rec_ytd,
+         "comparison": rec_ytd_ly, "change": rel(rec_ytd, rec_ytd_ly), "change_type": "pct", "note": ""},
+        {"metric": "win_rate_target_vs_other", "label": "Tasa de éxito, 12 meses: sectores meta vs el resto", "value": wr(tgt),
+         "comparison": wr(oth), "change": round((wr(tgt) - wr(oth)) * 100, 1) if wr(tgt) is not None and wr(oth) is not None else None,
+         "change_type": "points", "note": f"{len(tgt)} y {len(oth)} decisiones"},
+    ]
+    return rows
+
+
 # ------------------------------------------------------------------ data check
 def data_check(leads, long, replaced, prospects, unmapped, dupes, hotels, S, raw):
     rm = S["report_month"]
@@ -427,8 +484,9 @@ def run(data_xlsx, responses_xlsx, imports_dir, config_path=HERE / "config_ixtap
     trend = q_trend(long, S)
     box, tot = q_boxscore(leads, S)
     insights = q_insights(leads, fit, occ, S)
+    scorecard = q_scorecard(long, leads, data["PublicData"], trend, S)
     raw = {"leads": len(data["Leads"]), "assets": len(assets),
            "responses": len(responses["Form responses 1"]), "imports": sum(len(v) for v in imports.values())}
     check, missing = data_check(leads, long, replaced, prospects, unmapped, dupes, hotels, S, raw)
     return dict(S=S, config=config, need=need, fit=fit, loss=loss, lost_to=lost_to, n_lost=n_lost, cap=cap,
-                trend=trend, box=box, tot=tot, insights=insights, check=check, missing=missing, hotels=hotels)
+                trend=trend, box=box, tot=tot, insights=insights, scorecard=scorecard, check=check, missing=missing, hotels=hotels)

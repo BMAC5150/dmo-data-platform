@@ -1,8 +1,9 @@
 # Informe de eventos de negocios · Ixtapa-Zihuatanejo · octubre 2026
 DATOS SINTÉTICOS. Prototipo: los hoteles, grupos y cifras son inventados.
 
-## Lo esencial
-Octubre cerró con 8,580 noches de grupo, 4.8% menos que en octubre de 2025, por una caída de 28.9% en asociaciones. La cartera prioritaria suma 8,936 noches estimadas, pero la oportunidad más urgente, Grupo Financiero Cumbres, llega el 18 de noviembre de 2026 y lleva 163 días abierta. Se pide a la Dirección cerrarla esta semana y decidir cómo responder al acceso aéreo, el motivo de pérdida que más noches nos cuesta.
+## Desempeño del mes
+[TABLA]
+Octubre fue un mes de terreno perdido en grupos. El destino llenó más cuartos que hace un año (ocupación de 52.4%, 4.9 puntos más), pero las noches de grupo bajaron 4.8%: el crecimiento del mes no vino de grupos. La demanda sí acompaña: llegaron 12 oportunidades, 50.0% más que en octubre de 2025, y en el año van 81, 30.6% más; el año a la fecha en noches de grupo sigue arriba 1.4%. Se pide a la Dirección cerrar esta semana a Grupo Financiero Cumbres, que llega el 18 de noviembre de 2026, y decidir cómo responder al acceso aéreo, el motivo de pérdida que más noches nos cuesta.
 
 ## Tres hallazgos
 1. **El acceso aéreo nos cuesta más noches que el precio.** El precio es el motivo más frecuente (17 grupos perdidos), pero el acceso aéreo costó 8,913 noches estimadas en 14 grupos, contra 6,640 del precio. Puerto Vallarta nos ganó 4 grupos por acceso aéreo, con 3,399 noches estimadas.

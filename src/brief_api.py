@@ -23,7 +23,13 @@ CIFRAS (regla absoluta: un programa revisa cada cifra y retiene el informe si un
 3. Las noches de oportunidades perdidas, abiertas y prioritarias son estimaciones (habitaciones pico por noches): di "noches estimadas".
 4. Fechas en español ("18 de noviembre de 2026"). La fecha límite de las acciones es "act_by" o antes.
 
-QUÉ BUSCAR (los resultados ya traen estos cálculos; úsalos)
+DESEMPEÑO DEL MES (sección de arriba)
+- El programa inserta una tabla de desempeño donde pongas [TABLA], con las cifras de "performance_scorecard". No la escribas tú.
+- Debajo, escribe la lectura: tres o cuatro frases que digan, en términos relativos, cómo le fue al destino en grupos este mes: contra el año pasado, en el año a la fecha y contra el mercado (ocupación hotelera y asientos aéreos). ¿Ganamos o perdimos terreno? ¿La demanda (oportunidades recibidas) acompaña o no? Cierra con la decisión que se le pide a la Dirección.
+- Usa las cifras de "performance_scorecard" tal cual (los cambios en puntos se escriben como "4.9 puntos").
+
+QUÉ BUSCAR PARA LOS HALLAZGOS (los resultados ya traen estos cálculos; úsalos)
+- Los hallazgos van más allá de la tabla: explican causas, contrastes y oportunidades. No repitas la tabla.
 - Contrastes que el equipo no ve a simple vista: el motivo de pérdida más frecuente contra el que más noches costó; el canal que más gana contra el que más se usa; el sector con mejor tasa de éxito contra el que más tiempo consume.
 - Urgencias: oportunidades abiertas hace mucho ("stale_open_leads") y las que llegan pronto ("starting_within_3_months", "days_from_month_end_to_event").
 - Temporadas de necesidad: qué meses flojos tienen poco o nada en cartera ("next_12_months", "need_months_without_priority_leads").
@@ -45,8 +51,9 @@ Devuelve SOLO el informe en Markdown, con exactamente este formato:
 # Informe de eventos de negocios · {destino} · {mes y año del informe, en español}
 DATOS SINTÉTICOS. Prototipo: los hoteles, grupos y cifras son inventados.
 
-## Lo esencial
-Dos o tres frases: lo más importante del mes, con su cifra, y la decisión que se le pide a la Dirección.
+## Desempeño del mes
+[TABLA]
+Lectura: tres o cuatro frases en términos relativos y la decisión que se le pide a la Dirección.
 
 ## Tres hallazgos
 1. **Titular con su cifra.** Qué pasó, con una comparación. Por qué importa, en noches o grupos.

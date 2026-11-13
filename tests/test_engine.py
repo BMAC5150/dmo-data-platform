@@ -93,6 +93,19 @@ def test_number_check_catches_a_wrong_number():
     assert (bad["Found in results"] == "NO").any()
 
 
+def test_scorecard_and_table():
+    R = engine.run(D, H, I)
+    sc = {r["metric"]: r for r in R["scorecard"]}
+    assert sc["group_room_nights_month"]["value"] == 8580 and sc["group_room_nights_month"]["comparison"] == 9009
+    assert sc["hotel_occupancy_month"]["change_type"] == "points"
+    table = b.scorecard_markdown(R)
+    assert table.count("\n") == 9 and "-4.8%" in table and "+4.9 pts" in table
+    brief = b.insert_table("# T\n\n## Desempeño del mes\n[TABLA]\nLectura.", table)
+    assert "[TABLA]" not in brief and brief.index("| Indicador") < brief.index("Lectura.")
+    assert "|\n\nLectura." in brief, "a blank line must end the table"
+    assert b.insert_table("# T\n## Desempeño del mes\nLectura.", table).index("| Indicador") < len("# T\n## Desempeño del mes\n") + 1
+
+
 def _fake_api(replies):
     """A stand-in for the Claude API that returns the given drafts in order and records the requests."""
     calls = []

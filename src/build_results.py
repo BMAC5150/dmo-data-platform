@@ -44,10 +44,61 @@ def brief_payload(R):
         "need_periods_next_6_months": R["need"].to_dict("records"),
         "need_months_setting": S["need_months"],
         "data_check_issues": R["check"].query("Status == 'CHECK'")[["Check", "Result"]].to_dict("records"),
+        "performance_scorecard": R["scorecard"],
         "insights": R["insights"],
         "delivery": {"brief_month": str(S["report_month"] + 1),
                      "act_by": (S["report_month"] + 1).to_timestamp(how="end").strftime("%Y-%m-%d")},
     }
+
+
+# ------------------------------------------------------------------ performance table (built by the script, not by Claude)
+TABLE_TOKEN = "[TABLA]"
+
+
+def scorecard_markdown(R):
+    S = R["S"]
+    rm, ly = S["report_month"], S["report_month"] - 12
+    m, m_ly = render_site.mes(rm), render_site.mes(ly, True)
+    mes_nombre = render_site.MESES[rm.month - 1]
+    rows = {r["metric"]: r for r in R["scorecard"]}
+
+    def num(v, kind):
+        if v is None:
+            return "—"
+        return f"{v * 100:.1f}%" if kind == "rate" else (f"{v:.1f}%" if kind == "pct_level" else f"{v:,.0f}")
+
+    def chg(r):
+        c = r["change"]
+        if c is None:
+            return "—"
+        return f"{c:+.1f} pts" if r["change_type"] == "points" else f"{c * 100:+.1f}%"
+
+    spec = [
+        ("group_room_nights_month", f"Noches de grupo del mes ({rows['group_room_nights_month']['note']})", "int", m_ly),
+        ("group_room_nights_ytd", f"Noches de grupo, enero a {mes_nombre}", "int", str(ly.year)),
+        ("group_room_nights_12m", "Noches de grupo, últimos 12 meses", "int", "12 meses anteriores"),
+        ("hotel_occupancy_month", "Ocupación hotelera del destino", "pct_level", m_ly),
+        ("air_seats_month", "Asientos aéreos programados (llegadas)", "int", m_ly),
+        ("leads_received_month", "Oportunidades recibidas en el mes", "int", m_ly),
+        ("leads_received_ytd", f"Oportunidades recibidas, enero a {mes_nombre}", "int", str(ly.year)),
+        ("win_rate_target_vs_other", "Tasa de éxito 12 meses: sectores meta contra el resto", "rate", "resto"),
+    ]
+    lines = [f"| Indicador | {m} | Comparación | Cambio |", "|---|---|---|---|"]
+    for key, label, kind, cmp_label in spec:
+        r = rows[key]
+        lines.append(f"| {label} | {num(r['value'], kind)} | {num(r['comparison'], kind)} ({cmp_label}) | {chg(r)} |")
+    return "\n".join(lines)
+
+
+def insert_table(brief, table_md):
+    """Put the script's performance table where Claude left [TABLA], or right under the first section heading."""
+    if TABLE_TOKEN in brief:
+        return brief.replace(TABLE_TOKEN, table_md + "\n", 1)  # blank line ends the table in Markdown
+    lines = brief.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            return "\n".join(lines[:i + 1] + [table_md, ""] + lines[i + 1:])
+    return table_md + "\n\n" + brief
 
 
 # ------------------------------------------------------------------ number check
@@ -255,7 +306,14 @@ def build_workbook(R, brief_text, check_df, path):
         else:
             ws.write(2, 0, "Informe del mes (redactado por Claude a partir de los resultados; cada cifra verificada)", F["title"])
         for line in brief_text.strip().splitlines():
-            if line.startswith("#"):
+            if line.startswith("|"):
+                if set(line.replace("|", "").strip()) <= set("-: "):
+                    continue  # markdown separator row
+                cells = [c.strip() for c in line.strip("|").split("|")]
+                ws.write(row, 0, cells[0], F["txt"])
+                for j, c in enumerate(cells[1:], start=1):
+                    ws.write(row, j, c, F["txt"])
+            elif line.startswith("#"):
                 ws.write(row, 0, line.lstrip("# ").strip(), F["h2"])
             elif line.strip():
                 ws.write(row, 0, line.replace("**", ""), F["txt"])
@@ -330,6 +388,7 @@ def main():
         print(f"   INFORME RETENIDO: {why}")
     else:
         print(f"   {len(check)} de {len(check)} cifras encontradas en los resultados")
+        brief = insert_table(brief, scorecard_markdown(R))
         (OUT / "brief_es.md").write_text(brief, encoding="utf-8")
 
     step(7, "Publicar los resultados")

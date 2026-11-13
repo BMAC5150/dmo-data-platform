@@ -152,8 +152,28 @@ def md(text):
         nonlocal in_ol, in_ul
         if in_ol: out.append("</ol>"); in_ol = False
         if in_ul: out.append("</ul>"); in_ul = False
+    rows = []
+    def flush_table():
+        if not rows:
+            return
+        head, body = rows[0], rows[1:]
+        def cell(c, tag, i):
+            cls = ' class="num"' if i > 0 else ""
+            if tag == "td" and i == 3 and c.startswith("-"):
+                cls = ' class="num neg"'
+            return f"<{tag}{cls}>{inline(c)}</{tag}>"
+        out.append('<div class="tw"><table class="score"><thead><tr>' + "".join(cell(c, "th", i) for i, c in enumerate(head))
+                   + "</tr></thead><tbody>" + "".join("<tr>" + "".join(cell(c, "td", i) for i, c in enumerate(r)) + "</tr>" for r in body)
+                   + "</tbody></table></div>")
+        rows.clear()
     for line in text.strip().splitlines():
         s = line.strip()
+        if s.startswith("|"):
+            close()
+            if not set(s.replace("|", "").strip()) <= set("-: "):
+                rows.append([c.strip() for c in s.strip("|").split("|")])
+            continue
+        flush_table()
         if not s:
             close(); continue
         if s.startswith("# "):
@@ -168,6 +188,7 @@ def md(text):
             out.append(f"<li>{inline(s[2:])}</li>")
         else:
             close(); out.append(f"<p>{inline(s)}</p>")
+    flush_table()
     close()
     return "\n".join(out)
 
@@ -435,6 +456,8 @@ details {{ margin-top:12px; }} summary {{ cursor:pointer; font-weight:600; color
 .brief h2 {{ font-size:24px; }}
 .brief h3 {{ font:800 17px Archivo, Arial, sans-serif; margin:18px 0 6px; color:var(--accent); }}
 .brief li {{ margin-bottom:8px; }}
+.brief .score {{ font-size:14px; margin:4px 0 10px; }}
+.brief .score td:first-child {{ font-weight:600; }}
 .verify {{ max-width:860px; }}
 footer {{ max-width:1240px; margin:0 auto; padding:6px 18px 30px; color:var(--muted); font-size:12px; }}
 </style>
