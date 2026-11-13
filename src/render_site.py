@@ -703,7 +703,10 @@ h3.gap { margin-top: 30px; }
   .sc-l { grid-column: 1 / -1; }
   .hero { padding-top: 38px; }
   .wrap { padding: 0 18px; }
-  .tablist { gap: 20px; }
+  nav.tabs .wrap { flex-wrap: wrap; row-gap: 0; }
+  .langs { order: -1; margin: 10px 0 2px auto; }
+  .tablist { width: 100%; gap: 18px; }
+  .tablist button { padding: 12px 0 12px; font-size: 14.5px; }
 }
 
 /* charts */
@@ -811,6 +814,12 @@ footer { padding: 0 0 40px; color: var(--slate); font-size: 12.5px; }
       try { localStorage.setItem('dmo-lang', lang); } catch (e) {}
       try { window.scrollTo(0, y); } catch (e) {}
     });
+  });
+  window.addEventListener('hashchange', function () {
+    var p = location.hash.slice(1).split('-');
+    if (TABS.indexOf(p[0]) >= 0) tab = p[0];
+    if (p[1] === 'en' || p[1] === 'es') lang = p[1];
+    apply(false);
   });
   apply(false);
   if (location.hash) { requestAnimationFrame(function () { try { window.scrollTo(0, 0); } catch (e) {} }); }

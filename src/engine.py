@@ -346,10 +346,20 @@ def q_insights(leads, fit, occ, S, stale_days=90):
     o["days_open"] = (rm_end.normalize() - o["Received"]).dt.days
     o["days_from_month_end_to_event"] = (o["Start date"] - rm_end.normalize()).dt.days
     stale = o[o["days_open"] > stale_days].sort_values("Start date")
+    fit_by_org = fit.set_index("Organizer")
+
+    def fit_of(org):
+        if org not in fit_by_org.index:
+            return {"fit_score": None, "priority": None, "capacity_fit": None}
+        r = fit_by_org.loc[org]
+        cap = "fits" if r["Capacity pts"] >= S["w_capacity"] else ("tight" if r["Capacity pts"] > 0 else "too big for the destination")
+        return {"fit_score": int(r["Score"]), "priority": r["Priority"] == "Yes", "capacity_fit": cap}
+
     stale_list = [{"lead_id": r.LeadID, "organizer": r.Organizer, "sector": r.Sector,
                    "start_date": r["Start date"].strftime("%Y-%m-%d"),
                    "days_open": int(r.days_open), "days_from_month_end_to_event": int(r.days_from_month_end_to_event),
-                   "est_room_nights": int(r["Est. room nights"])}
+                   "attendees": int(r.Attendees), "peak_rooms": int(r["Peak rooms"]),
+                   "est_room_nights": int(r["Est. room nights"]), **fit_of(r.Organizer)}
                   for _, r in stale.iterrows()]
 
     prio = fit[fit.Priority == "Yes"]

@@ -341,12 +341,22 @@ def main():
         import brief_api
         if not os.environ.get("ANTHROPIC_API_KEY"):
             sys.exit("   Falta el secreto ANTHROPIC_API_KEY en el repositorio. La corrida se detiene.")
-        for lang in ("es", "en"):
-            try:
-                briefs[lang], infos[lang] = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", lambda t: check_brief(t, payload), lang=lang)
-            except RuntimeError as e:  # API down or refused: results still go out, the brief is held
-                print(f"   [{lang}] La API de Claude no respondió: {e}")
-                briefs[lang], infos[lang] = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "problems": [], "error": str(e)}
+        chk_fn = lambda t: check_brief(t, payload)
+        down = lambda e: {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "problems": [], "error": str(e)}
+        # Spanish first; English is a translation of the verified Spanish, so both say the same thing.
+        try:
+            briefs["es"], infos["es"] = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", chk_fn, lang="es")
+        except RuntimeError as e:  # API down or refused: results still go out, the brief is held
+            print(f"   [es] La API de Claude no respondió: {e}")
+            briefs["es"], infos["es"] = None, down(e)
+        try:
+            if briefs["es"] is not None:
+                briefs["en"], infos["en"] = brief_api.translate_brief(briefs["es"], chk_fn)
+            else:  # no verified Spanish to translate: draft the English on its own
+                briefs["en"], infos["en"] = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", chk_fn, lang="en")
+        except RuntimeError as e:
+            print(f"   [en] La API de Claude no respondió: {e}")
+            briefs["en"], infos["en"] = None, down(e)
         model = next((i["model"] for i in infos.values() if i.get("model")), brief_api.DEFAULT_MODEL)
     else:
         for lang in ("es", "en"):
@@ -416,7 +426,7 @@ def write_summary(R, payload, briefs, checks, infos, meta):
         f"| Revisar los datos | {'⚠️' if (chk.Status == 'CHECK').any() else '✅'} {int((chk.Status == 'CHECK').sum())} alertas |",
         f"| 6 consultas fijas | ✅ {payload['lead_targeting']['priority']} prospectos prioritarios |",
         f"| Informe en español ({source}) | {verdict('es')} |",
-        f"| Informe en inglés ({source}) | {verdict('en')} |",
+        f"| Informe en inglés ({'traducción del informe en español' if infos['en'].get('translated') else source}) | {verdict('en')} |",
         "",
         f"Noches de grupo {payload['report_month']}: **{g['month']:,}** ({g['change']*100:+.1f}% contra el mismo mes del año pasado, {g['comparable_hotels']} hoteles comparables).",
     ]

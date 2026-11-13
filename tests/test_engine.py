@@ -121,6 +121,32 @@ def test_english_brief_uses_english_sections():
     assert b.scorecard_markdown(R, "en").startswith("| Indicator | October 2026 |")
 
 
+def test_stale_leads_carry_capacity_fit():
+    R = engine.run(D, H, I)
+    stale = {x["organizer"]: x for x in R["insights"]["stale_open_leads"]["leads"]}
+    assert stale["Colegio Encino de Anestesiología"]["capacity_fit"] == "too big for the destination"
+    assert stale["Colegio Encino de Anestesiología"]["priority"] is False
+    assert stale["Grupo Financiero Cumbres"]["priority"] is True
+
+
+def test_english_is_a_translation_with_the_same_numbers():
+    import brief_api
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    es = open(ROOT / "brief/brief_es.md").read()
+    en = open(ROOT / "brief/brief_en.md").read()
+    assert brief_api.numbers_in(es) == brief_api.numbers_in(en), "the two backup briefs must carry the same numbers"
+    drift = en.replace("8,913", "8,931", 1)  # a translation that changed one number
+    post, calls = _fake_api([drift, en])
+    text, info = brief_api.translate_brief(es, lambda t: b.check_brief(t, p), key="t", post=post, log=lambda *a: None)
+    assert text == en.strip() and info["attempts"] == 2
+    assert "Spanish brief:" in calls[0]["messages"][0]["content"] and "[TABLA]" in calls[0]["messages"][0]["content"]
+    assert "8931" in calls[1]["messages"][0]["content"].split("Your previous translation had problems")[1]
+    post, calls = _fake_api([drift, drift])
+    text, info = brief_api.translate_brief(es, lambda t: b.check_brief(t, p), key="t", post=post, log=lambda *a: None)
+    assert text is None and any("differ from the Spanish" in x for x in info["problems"])
+
+
 def test_scorecard_and_table():
     R = engine.run(D, H, I)
     sc = {r["metric"]: r for r in R["scorecard"]}

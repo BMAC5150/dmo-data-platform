@@ -45,6 +45,7 @@ ACCIONES
 - Exactamente tres. Primero lo que vence antes (un evento próximo con la oportunidad aún abierta va primero); después, por noches en juego, de mayor a menor.
 - Cada una nombra organizaciones concretas de los resultados, un responsable (Dirección, Ventas o Hoteles socios), una fecha límite y lo que está en juego en noches.
 - Prohibido lo genérico: nada de "fortalecer la promoción", "mejorar la marca", "aprovechar oportunidades", "dar seguimiento" sin a quién y para cuándo.
+- No propongas perseguir ni conseguir una oportunidad marcada "too big for the destination" o que no sea prioritaria ("priority": false); a esas solo se les puede proponer cerrarlas o liberarlas. Para crecer, usa los prospectos prioritarios.
 
 ESTILO
 - Español de México, directo, para alguien ocupado. Entre 350 y 450 palabras. Sin adjetivos de relleno, sin exclamaciones, sin emojis.
@@ -102,6 +103,7 @@ ACTIONS
 - Exactly three. First whatever is due soonest (an upcoming event with the lead still open goes first); then by room nights at stake, largest first.
 - Each names specific organizations from the results, an owner (Director, Sales or Partner hotels), a deadline and what is at stake in room nights.
 - No generic advice: nothing like "strengthen promotion", "improve the brand", "seize opportunities", or "follow up" without who and by when.
+- Never propose pursuing or winning a lead marked "too big for the destination" or not a priority ("priority": false); for those, the only action you may propose is to close or release them. For growth, use the priority prospects.
 
 STYLE
 - Plain, direct English for a busy executive. Between 350 and 450 words. No filler adjectives, no exclamation marks, no emojis.
@@ -220,4 +222,63 @@ def draft_brief(payload, destination, check, model=None, key=None, post=None, lo
             if problems:
                 fixes.append("no cumplió el formato (" + "; ".join(problems) + "); entrega el informe completo, con todas las secciones")
             prompt = base + "\n\nTu borrador anterior " + " y ".join(fixes) + ". Reescribe el informe completo."
+    return None, info
+
+
+TRANSLATE_EN = """You translate a monthly business events brief from Mexican Spanish into plain, direct English for a busy executive. The Spanish brief has already been checked; your English must say exactly the same thing.
+
+Rules:
+1. Keep every number exactly as it is: same digits, same comma thousands separators, same decimals. Do not add, drop, round or recalculate any number.
+2. Keep the Markdown structure line for line, and keep the token [TABLA] on its own line exactly where it is.
+3. Use exactly these lines and headings:
+   - Title: "# Business events brief, {month and year}"
+   - Second line: "SYNTHETIC DATA. Prototype: hotels, groups and figures are invented."
+   - "## Desempeño del mes" becomes "## Month performance"
+   - "## Tres hallazgos" becomes "## Three findings"
+   - "## Tres acciones para {mes}" becomes "## Three actions for {month}"
+   - "## Para vigilar" becomes "## Watch"
+   - "## Notas sobre los datos" becomes "## Data notes"
+   - "Lectura:" becomes "Reading:"
+4. Owners: Dirección = Director, Ventas = Sales, Hoteles socios = Partner hotels. "Responsable" = "Owner", "Fecha límite" = "Deadline", "En juego" = "At stake", "noches estimadas" = "estimated room nights", "puntos" = "points".
+5. Dates in English: "18 de noviembre de 2026" becomes "November 18, 2026".
+6. Organization, hotel and destination names stay exactly as they are.
+
+Return ONLY the English brief in Markdown.
+"""
+
+
+def numbers_in(text):
+    import re
+    text = re.sub(r"(?m)^\s*\d+\.\s", "", text)
+    return sorted(m.rstrip(",.").replace(",", "") for m in re.findall(r"\d[\d,]*(?:\.\d+)?", text))
+
+
+def translate_brief(es_text, check, model=None, key=None, post=None, log=print):
+    """English version of the verified Spanish brief. Same checks, plus: the same numbers as the Spanish."""
+    model = model or os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+    key = key or os.environ.get("ANTHROPIC_API_KEY")
+    info = {"model": model, "attempts": 0, "bad_numbers": [], "problems": [], "translated": True}
+    want = numbers_in(es_text)
+    prompt = f"Spanish brief:\n\n{es_text}"
+    for attempt in (1, 2):
+        info["attempts"] = attempt
+        text, used_model, stop, usage = call_claude(prompt, model, key, post=post, system=TRANSLATE_EN)
+        info["model"] = used_model
+        problems = structure_problems(text, stop, "en")
+        got = numbers_in(text)
+        if got != want:
+            missing = sorted(set(want) - set(got))
+            extra = sorted(set(got) - set(want))
+            problems.append("numbers differ from the Spanish brief"
+                            + (f" (missing: {', '.join(missing)})" if missing else "") + (f" (added: {', '.join(extra)})" if extra else ""))
+        res = check(text)
+        bad = res.loc[res["Found in results"] != "Yes", "Number in brief"].tolist()
+        log(f"   [en] traducción {attempt}: {len(text.split())} palabras, fin={stop}; {len(res)} cifras, {len(bad)} no encontradas; "
+            f"estructura: {'; '.join(problems) or 'OK'}")
+        if not bad and not problems:
+            info["bad_numbers"], info["problems"] = [], []
+            return text, info
+        info["bad_numbers"], info["problems"] = bad, problems
+        prompt = (f"Spanish brief:\n\n{es_text}\n\nYour previous translation had problems: " + "; ".join(problems + ([f"numbers not in the results: {', '.join(bad)}"] if bad else []))
+                  + ". Translate again, keeping every number exactly as in the Spanish.")
     return None, info
