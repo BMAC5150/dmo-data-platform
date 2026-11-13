@@ -454,13 +454,13 @@ const tabs = [...document.querySelectorAll('nav button')];
 function show(id) {{
   tabs.forEach(b => b.setAttribute('aria-selected', b.dataset.t === id));
   document.querySelectorAll('.tab').forEach(s => s.classList.toggle('on', s.id === id));
-  history.replaceState(null, '', '#' + id);
+  try {{ history.replaceState(null, '', '#' + id); }} catch (e) {{ /* sandboxed preview: address bar can't change */ }}
 }}
 tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.t)));
 function fromHash() {{ const h = location.hash.slice(1); show(tabs.some(b => b.dataset.t === h) ? h : 'tablero'); }}
 window.addEventListener('hashchange', fromHash);
 fromHash();
-window.scrollTo(0, 0);
+try {{ window.scrollTo(0, 0); }} catch (e) {{}}
 </script>
 </body>
 </html>
