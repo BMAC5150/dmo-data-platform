@@ -61,7 +61,8 @@ def fecha(s):
 def tr_check(result):
     r = str(result)
     r = r.replace("All tabs and columns match the schema", "Todas las pestañas y columnas coinciden con el esquema")
-    r = re.sub(r"(\d+) of (\d+) hotels submitted for (\S+)", lambda m: f"{m[1]} de {m[2]} hoteles enviaron {mes(m[3])}", r)
+    r = re.sub(r"(\d+) of (\d+) hotels submitted for ([0-9-]+)", lambda m: f"{m[1]} de {m[2]} hoteles enviaron {mes(m[3])}", r)
+    r = r.replace("; missing: ", "; falta: ")
     r = re.sub(r"(\d+) earlier submission\(s\) replaced by the hotel's latest",
                lambda m: f"{m[1]} envío anterior reemplazado por el más reciente del hotel", r)
     r = re.sub(r"(\d+) prospects added; (\d+) already in Leads, dropped",

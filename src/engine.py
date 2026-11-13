@@ -451,8 +451,8 @@ def data_check(leads, long, replaced, prospects, unmapped, dupes, hotels, S, raw
     rows = [
         ("Structure", "All tabs and columns match the schema", "OK"),
         ("Rows read", f"Leads {raw['leads']}, Assets {raw['assets']}, Hotel responses {raw['responses']}, Imports {raw['imports']}", "OK"),
-        ("Hotel submissions", f"{len(sub)} of {len(hotels)} hotels submitted for {rm}", "OK" if not missing else "CHECK"),
-        ("Missing hotels", ", ".join(missing) or "None", "OK" if not missing else "CHECK"),
+        ("Hotel submissions", f"{len(sub)} of {len(hotels)} hotels submitted for {rm}"
+         + (f"; missing: {', '.join(missing)}" if missing else ""), "OK" if not missing else "CHECK"),
         ("Resubmissions", f"{replaced} earlier submission(s) replaced by the hotel's latest", "OK"),
         ("Open leads with past dates", ", ".join(stale["LeadID"]) or "None", "OK" if stale.empty else "CHECK"),
         ("Lost leads without a reason", ", ".join(no_reason["LeadID"]) or "None", "OK" if no_reason.empty else "CHECK"),
