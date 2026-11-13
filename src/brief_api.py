@@ -50,7 +50,7 @@ ESTILO
 
 Devuelve SOLO el informe en Markdown, con exactamente este formato:
 
-# Informe de eventos de negocios · {destino} · {mes y año del informe, en español}
+# Informe de eventos de negocios, {mes y año del informe, en español}
 DATOS SINTÉTICOS. Prototipo: los hoteles, grupos y cifras son inventados.
 
 ## Desempeño del mes

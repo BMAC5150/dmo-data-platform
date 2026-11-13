@@ -1,4 +1,4 @@
-# Informe de eventos de negocios · Ixtapa-Zihuatanejo · octubre 2026
+# Informe de eventos de negocios, octubre 2026
 DATOS SINTÉTICOS. Prototipo: los hoteles, grupos y cifras son inventados.
 
 ## Desempeño del mes

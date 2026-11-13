@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: corrida
+  group: corrida-y-pagina
   cancel-in-progress: false
 
 jobs:
@@ -52,3 +52,24 @@ jobs:
           path: out/
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Preparar la página para publicar
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: out/site
+
+  publicar:
+    name: Publicar la página (GitHub Pages)
+    needs: corrida
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deploy
+        uses: actions/deploy-pages@v5

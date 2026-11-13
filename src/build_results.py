@@ -56,37 +56,11 @@ TABLE_TOKEN = "[TABLA]"
 
 
 def scorecard_markdown(R):
-    S = R["S"]
-    rm, ly = S["report_month"], S["report_month"] - 12
-    m, m_ly = render_site.mes(rm), render_site.mes(ly, True)
-    mes_nombre = render_site.MESES[rm.month - 1]
-    rows = {r["metric"]: r for r in R["scorecard"]}
-
-    def num(v, kind):
-        if v is None:
-            return "—"
-        return f"{v * 100:.1f}%" if kind == "rate" else (f"{v:.1f}%" if kind == "pct_level" else f"{v:,.0f}")
-
-    def chg(r):
-        c = r["change"]
-        if c is None:
-            return "—"
-        return f"{c:+.1f} pts" if r["change_type"] == "points" else f"{c * 100:+.1f}%"
-
-    spec = [
-        ("group_room_nights_month", f"Noches de grupo del mes ({rows['group_room_nights_month']['note']})", "int", m_ly),
-        ("group_room_nights_ytd", f"Noches de grupo, enero a {mes_nombre}", "int", str(ly.year)),
-        ("group_room_nights_12m", "Noches de grupo, últimos 12 meses", "int", "12 meses anteriores"),
-        ("hotel_occupancy_month", "Ocupación hotelera del destino", "pct_level", m_ly),
-        ("air_seats_month", "Asientos aéreos programados (llegadas)", "int", m_ly),
-        ("leads_received_month", "Oportunidades recibidas en el mes", "int", m_ly),
-        ("leads_received_ytd", f"Oportunidades recibidas, enero a {mes_nombre}", "int", str(ly.year)),
-        ("win_rate_target_vs_other", "Tasa de éxito 12 meses: sectores meta contra el resto", "rate", "resto"),
-    ]
-    lines = [f"| Indicador | {m} | Comparación | Cambio |", "|---|---|---|---|"]
-    for key, label, kind, cmp_label in spec:
-        r = rows[key]
-        lines.append(f"| {label} | {num(r['value'], kind)} | {num(r['comparison'], kind)} ({cmp_label}) | {chg(r)} |")
+    rm = R["S"]["report_month"]
+    lines = [f"| Indicador | {render_site.mes(rm)} | Comparación | Cambio |", "|---|---|---|---|"]
+    for label, val, cmp_, chg, kind in render_site.scorecard_rows(R):
+        c = "—" if chg is None else (f"{chg:+.1f} pts" if kind == "points" else f"{chg * 100:+.1f}%")
+        lines.append(f"| {label} | {val} | {cmp_} | {c} |")
     return "\n".join(lines)
 
 
@@ -397,6 +371,8 @@ def main():
     build_workbook(R, brief, check, out)
     site = OUT / "site"
     site.mkdir(exist_ok=True)
+    import shutil
+    shutil.copytree(ROOT / "site_assets" / "fonts", site / "fonts", dirs_exist_ok=True)  # self-hosted fonts (SIL OFL)
     meta = run_meta()
     meta["brief_source"] = os.environ.get("BRIEF_SOURCE_LABEL", source)
     (site / "index.html").write_text(render_site.render(R, brief, check, meta), encoding="utf-8")
