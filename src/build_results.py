@@ -55,10 +55,11 @@ def brief_payload(R):
 TABLE_TOKEN = "[TABLA]"
 
 
-def scorecard_markdown(R):
+def scorecard_markdown(R, lang="es"):
     rm = R["S"]["report_month"]
-    lines = [f"| Indicador | {render_site.mes(rm)} | Comparación | Cambio |", "|---|---|---|---|"]
-    for label, val, cmp_, chg, kind in render_site.scorecard_rows(R):
+    head = ("Indicator", "Comparison", "Change") if lang == "en" else ("Indicador", "Comparación", "Cambio")
+    lines = [f"| {head[0]} | {render_site.mes(rm, lang=lang)} | {head[1]} | {head[2]} |", "|---|---|---|---|"]
+    for label, val, cmp_, chg, kind in render_site.scorecard_rows(R, lang):
         c = "—" if chg is None else (f"{chg:+.1f} pts" if kind == "points" else f"{chg * 100:+.1f}%")
         lines.append(f"| {label} | {val} | {cmp_} | {c} |")
     return "\n".join(lines)
@@ -118,7 +119,7 @@ def check_brief(text, payload):
 
 
 # ------------------------------------------------------------------ workbook
-def build_workbook(R, brief_text, check_df, path):
+def build_workbook(R, briefs, checks, path):
     S = R["S"]
     rm = str(S["report_month"])
     t = R["trend"]
@@ -270,32 +271,34 @@ def build_workbook(R, brief_text, check_df, path):
         ws.set_column(0, 0, 24)
         ws.set_column(1, 6, 14)
 
-        # ---------------- Brief
-        ws = sheet("Brief")
-        ws.set_column(0, 0, 110)
-        row = 4
-        if brief_text is None:
-            ws.write(2, 0, "Informe retenido: no pasó la verificación de cifras. El operador lo revisa antes de enviarlo.", F["title"])
-            brief_text = ""
-        else:
-            ws.write(2, 0, "Informe del mes (redactado por Claude a partir de los resultados; cada cifra verificada)", F["title"])
-        for line in brief_text.strip().splitlines():
-            if line.startswith("|"):
-                if set(line.replace("|", "").strip()) <= set("-: "):
-                    continue  # markdown separator row
-                cells = [c.strip() for c in line.strip("|").split("|")]
-                ws.write(row, 0, cells[0], F["txt"])
-                for j, c in enumerate(cells[1:], start=1):
-                    ws.write(row, j, c, F["txt"])
-            elif line.startswith("#"):
-                ws.write(row, 0, line.lstrip("# ").strip(), F["h2"])
-            elif line.strip():
-                ws.write(row, 0, line.replace("**", ""), F["txt"])
-            row += 1
-        row += 1
-        ws.write(row, 0, "Number check", F["h2"])
-        ws.set_column(1, 1, 18)
-        table(ws, check_df, row + 1)
+        # ---------------- Brief, one tab per language
+        for lang, tab_name, held_t, ok_t, check_t in [
+                ("es", "Brief", "Informe retenido: no pasó la verificación. El operador lo revisa antes de enviarlo.",
+                 "Informe del mes (redactado por Claude a partir de los resultados; cada cifra verificada)", "Verificación de cifras"),
+                ("en", "Brief EN", "Brief held: it did not pass the check. The operator reviews it before it is sent.",
+                 "Monthly brief (written by Claude from the results; every number checked)", "Number check")]:
+            brief_text, check_df = briefs.get(lang), checks.get(lang)
+            ws = sheet(tab_name)
+            ws.set_column(0, 0, 110)
+            row = 4
+            ws.write(2, 0, held_t if brief_text is None else ok_t, F["title"])
+            for line in (brief_text or "").strip().splitlines():
+                if line.startswith("|"):
+                    if set(line.replace("|", "").strip()) <= set("-: "):
+                        continue  # markdown separator row
+                    cells = [c.strip() for c in line.strip("|").split("|")]
+                    for j, c in enumerate(cells):
+                        ws.write(row, j, c, F["txt"])
+                elif line.startswith("#"):
+                    ws.write(row, 0, line.lstrip("# ").strip(), F["h2"])
+                elif line.strip():
+                    ws.write(row, 0, line.replace("**", ""), F["txt"])
+                row += 1
+            if check_df is not None and len(check_df):
+                row += 1
+                ws.write(row, 0, check_t, F["h2"])
+                ws.set_column(1, 3, 18)
+                table(ws, check_df, row + 1)
 
         # ---------------- Data check
         ws = sheet("Data check")
@@ -332,75 +335,94 @@ def main():
     (OUT / "brief_payload.json").write_text(json.dumps(payload, indent=1, ensure_ascii=False, default=str))
     print(f"   {len(R['fit'])} candidatos puntuados; {payload['lead_targeting']['priority']} prioritarios")
 
-    step(5, "Redactar el informe" + (" con la API de Claude" if mode == "api" else " (archivo brief/brief_es.md)"))
+    step(5, "Redactar el informe en español e inglés" + (" con la API de Claude" if mode == "api" else " (archivos de brief/)"))
+    briefs, infos = {}, {}
     if mode == "api":
         import brief_api
         if not os.environ.get("ANTHROPIC_API_KEY"):
             sys.exit("   Falta el secreto ANTHROPIC_API_KEY en el repositorio. La corrida se detiene.")
-        try:
-            brief, info = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", lambda t: check_brief(t, payload))
-        except RuntimeError as e:  # API down or refused: results still go out, the brief is held
-            print(f"   La API de Claude no respondió: {e}")
-            brief, info = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "problems": [], "error": str(e)}
-        source = f"Redactado por la API de Claude ({info['model']}) a partir de los resultados de las consultas"
+        for lang in ("es", "en"):
+            try:
+                briefs[lang], infos[lang] = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", lambda t: check_brief(t, payload), lang=lang)
+            except RuntimeError as e:  # API down or refused: results still go out, the brief is held
+                print(f"   [{lang}] La API de Claude no respondió: {e}")
+                briefs[lang], infos[lang] = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "problems": [], "error": str(e)}
+        model = next((i["model"] for i in infos.values() if i.get("model")), brief_api.DEFAULT_MODEL)
     else:
-        brief = (ROOT / "brief" / "brief_es.md").read_text()
-        info = {"model": None, "attempts": 0, "bad_numbers": [], "problems": []}
-        source = "Redactado por Claude a partir de los resultados de las consultas"
+        for lang in ("es", "en"):
+            f = ROOT / "brief" / f"brief_{lang}.md"
+            briefs[lang] = f.read_text() if f.exists() else None
+            infos[lang] = {"model": None, "attempts": 0, "bad_numbers": [], "problems": [] if f.exists() else [f"falta {f.name}"]}
+        model = None
 
-    step(6, "Verificar cada cifra del informe")
-    if brief is not None:
-        check = check_brief(brief, payload)
-        bad = check[check["Found in results"] != "Yes"]
-        if len(bad):
-            brief = None
-            info["bad_numbers"] = bad["Number in brief"].tolist()
-    if brief is None:
-        check = pd.DataFrame([{"Number in brief": b, "Found in results": "NO"} for b in info["bad_numbers"]],
-                             columns=["Number in brief", "Found in results"])
-        why = ("; ".join(([f"cifras no encontradas en los resultados: {info['bad_numbers']}"] if info["bad_numbers"] else [])
-                         + info.get("problems", [])) or "la API no respondió")
-        print(f"   INFORME RETENIDO: {why}")
-    else:
-        print(f"   {len(check)} de {len(check)} cifras encontradas en los resultados")
-        brief = insert_table(brief, scorecard_markdown(R))
-        (OUT / "brief_es.md").write_text(brief, encoding="utf-8")
+    step(6, "Verificar cada cifra de los informes")
+    checks = {}
+    for lang in ("es", "en"):
+        brief, info = briefs[lang], infos[lang]
+        if brief is not None:
+            check = check_brief(brief, payload)
+            bad = check[check["Found in results"] != "Yes"]
+            if len(bad):
+                brief = None
+                info["bad_numbers"] = bad["Number in brief"].tolist()
+        if brief is None:
+            check = pd.DataFrame([{"Number in brief": b, "Found in results": "NO"} for b in info["bad_numbers"]],
+                                 columns=["Number in brief", "Found in results"])
+            why = ("; ".join(([f"cifras no encontradas en los resultados: {info['bad_numbers']}"] if info["bad_numbers"] else [])
+                             + info.get("problems", [])) or "la API no respondió")
+            print(f"   [{lang}] INFORME RETENIDO: {why}")
+        else:
+            print(f"   [{lang}] {len(check)} de {len(check)} cifras encontradas en los resultados")
+            brief = insert_table(brief, scorecard_markdown(R, lang))
+            (OUT / f"brief_{lang}.md").write_text(brief, encoding="utf-8")
+        briefs[lang], checks[lang] = brief, check
 
     step(7, "Publicar los resultados")
     out = OUT / f"Results {R['S']['report_month']}.xlsx"
-    build_workbook(R, brief, check, out)
+    build_workbook(R, briefs, checks, out)
     site = OUT / "site"
     site.mkdir(exist_ok=True)
     import shutil
     shutil.copytree(ROOT / "site_assets" / "fonts", site / "fonts", dirs_exist_ok=True)  # self-hosted fonts (SIL OFL)
     meta = run_meta()
-    meta["brief_source"] = os.environ.get("BRIEF_SOURCE_LABEL", source)
-    (site / "index.html").write_text(render_site.render(R, brief, check, meta), encoding="utf-8")
+    meta.update({"mode": mode, "model": model})
+    (site / "index.html").write_text(render_site.render(R, briefs, checks, meta), encoding="utf-8")
     print(f"   {out.name} y site/index.html")
-    write_summary(R, payload, brief, check, info, meta)
+    write_summary(R, payload, briefs, checks, infos, meta)
 
 
-def write_summary(R, payload, brief, check, info, meta):
+def write_summary(R, payload, briefs, checks, infos, meta):
     """Markdown summary for the GitHub Actions run page."""
     import os
     chk = R["check"]
     g = payload["group_rn"]
+    source = f"API de Claude ({meta['model']})" if meta.get("mode") == "api" else "archivos de brief/"
+
+    def verdict(lang):
+        brief, check, info = briefs[lang], checks[lang], infos[lang]
+        if brief:
+            return f"✅ {len(check)} de {len(check)} cifras; estructura completa"
+        reasons = ([("cifras no encontradas: " + ", ".join(info["bad_numbers"]))] if info["bad_numbers"] else []) + info.get("problems", [])
+        return "⛔ retenido: " + ("; ".join(reasons) or "la API no respondió")
+
+    drafts = sum(i.get("attempts", 0) for i in infos.values())
     lines = [
         "## Corrida: Ixtapa-Zihuatanejo · " + payload["report_month"] + " · DATOS SINTÉTICOS",
         "",
-        f"Versión del código: `{meta['version']}`" + (f" · intentos de redacción: {info['attempts']}" if info.get("attempts") else ""),
+        f"Versión del código: `{meta['version']}`" + (f" · borradores redactados: {drafts}" if drafts else ""),
         "",
         "| Paso | Resultado |", "|---|---|",
         f"| Leer y revisar estructura | ✅ {render_site.tr_check(chk.loc[chk.Check == 'Rows read', 'Result'].iloc[0])} |",
         f"| Revisar los datos | {'⚠️' if (chk.Status == 'CHECK').any() else '✅'} {int((chk.Status == 'CHECK').sum())} alertas |",
         f"| 6 consultas fijas | ✅ {payload['lead_targeting']['priority']} prospectos prioritarios |",
-        f"| Informe | {'✅ ' + meta['brief_source'] if brief else '⛔ retenido'} |",
-        f"| Verificación | {'✅ ' + str(len(check)) + ' de ' + str(len(check)) + ' cifras; estructura completa' if brief else '⛔ ' + ('; '.join(([('cifras no encontradas: ' + ', '.join(info['bad_numbers']))] if info['bad_numbers'] else []) + info.get('problems', [])) or 'la API no respondió')} |",
+        f"| Informe en español ({source}) | {verdict('es')} |",
+        f"| Informe en inglés ({source}) | {verdict('en')} |",
         "",
         f"Noches de grupo {payload['report_month']}: **{g['month']:,}** ({g['change']*100:+.1f}% contra el mismo mes del año pasado, {g['comparable_hotels']} hoteles comparables).",
     ]
-    if brief:
-        lines += ["", "<details><summary>Informe</summary>", "", brief, "", "</details>"]
+    for lang, label in (("es", "Informe (español)"), ("en", "Brief (English)")):
+        if briefs[lang]:
+            lines += ["", f"<details><summary>{label}</summary>", "", briefs[lang], "", "</details>"]
     text = "\n".join(lines) + "\n"
     (OUT / "run_summary.md").write_text(text, encoding="utf-8")
     if os.environ.get("GITHUB_STEP_SUMMARY"):

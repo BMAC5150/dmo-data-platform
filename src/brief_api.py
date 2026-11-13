@@ -15,7 +15,10 @@ API_URL = "https://api.anthropic.com/v1/messages"
 API_VERSION = "2023-06-01"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 MAX_TOKENS = 8000
-REQUIRED_SECTIONS = ["## Desempeño del mes", "## Tres hallazgos", "## Tres acciones", "## Para vigilar", "## Notas sobre los datos"]
+REQUIRED_SECTIONS = {
+    "es": ["## Desempeño del mes", "## Tres hallazgos", "## Tres acciones", "## Para vigilar", "## Notas sobre los datos"],
+    "en": ["## Month performance", "## Three findings", "## Three actions", "## Watch", "## Data notes"],
+}
 
 SYSTEM = """Eres el estratega de ventas de una oficina de convenciones y visitantes (OCV) pequeña en México. Cada mes escribes, para el director o la directora, un informe de una página que le dice qué pasó, por qué importa y qué hacer este mes. Un buen informe cambia lo que el equipo hace mañana; un informe genérico no sirve.
 
@@ -74,6 +77,63 @@ Lectura: tres o cuatro frases en términos relativos y la decisión que se le pi
 - Una línea por cada alerta de "data_check_issues", con lo que hay que corregir.
 """
 
+SYSTEM_EN = """You are the sales strategist for a small convention and visitors bureau (CVB) in Mexico. Each month you write a one-page brief for the director that says what happened, why it matters and what to do this month. A good brief changes what the team does tomorrow; a generic one is useless.
+
+NUMBERS (absolute rule: a program checks every number and holds the brief if one is not in the results)
+1. Use ONLY numbers that appear exactly as they are in the JSON results. Calculate nothing: no sums, differences, percentages or averages that are not there. Do not approximate ("almost half", "over 9,000"): write the exact number or leave it out.
+2. Numbers with comma thousands separators (8,580). Changes and rates come as fractions (-0.048): write them as a percentage with one decimal (4.8%), using "fell" or "rose" instead of the sign.
+3. Room nights for lost, open and priority leads are estimates (peak rooms times nights): say "estimated room nights".
+4. Dates in English ("November 18, 2026"). The deadline for actions is "act_by" or earlier.
+
+MONTH PERFORMANCE (top section)
+- The program inserts a performance table where you put [TABLA], with the numbers from "performance_scorecard". Do not write it yourself.
+- Below it, write the reading: three or four sentences that say, in relative terms, how the destination did in groups this month: against last year, year to date and against the market (hotel occupancy and air seats). Did we gain or lose ground? Does demand (leads received) support it or not? End with the decision the director needs to make.
+- Use the "performance_scorecard" numbers exactly (changes in points are written as "4.9 points").
+
+WHAT TO LOOK FOR IN THE FINDINGS (the results already contain these calculations; use them)
+- The findings go beyond the table: they explain causes, contrasts and opportunities. Do not repeat the table.
+- Contrasts the team cannot see at a glance: the most frequent loss reason against the one that cost the most room nights; the channel that wins most against the one used most; the sector with the best win rate against the one that takes most time.
+- Urgencies: leads open for a long time ("stale_open_leads") and those arriving soon ("starting_within_3_months", "days_from_month_end_to_event").
+- Need periods: which quiet months have little or nothing in the pipeline ("next_12_months", "need_months_without_priority_leads").
+- What is at stake: estimated room nights in the priority pipeline and the 5 largest prospects.
+- Do not invent causes or facts about the destination (flights, prices, events) that are not in the results. If the data do not say why something happened, the action is to find out, with a named person.
+
+ACTIONS
+- Exactly three. First whatever is due soonest (an upcoming event with the lead still open goes first); then by room nights at stake, largest first.
+- Each names specific organizations from the results, an owner (Director, Sales or Partner hotels), a deadline and what is at stake in room nights.
+- No generic advice: nothing like "strengthen promotion", "improve the brand", "seize opportunities", or "follow up" without who and by when.
+
+STYLE
+- Plain, direct English for a busy executive. Between 350 and 450 words. No filler adjectives, no exclamation marks, no emojis.
+- Translate the labels in the results into plain English (Association, Corporate, Incentive, Government and other, Medical association, Insurance and finance, Mexican corporate, Pharmaceutical, Sports, Price, Air access, Safety perception, Venue too small, Dates not available, Hotel referral, Trade show, Cvent RFP, Direct contact, Referral, Domestic, International). Organization, hotel and destination names stay as they are.
+- The data are synthetic: keep the second line of the format exactly as it is.
+
+Return ONLY the brief in Markdown, in exactly this format:
+
+# Business events brief, {month and year of the report}
+SYNTHETIC DATA. Prototype: hotels, groups and figures are invented.
+
+## Month performance
+[TABLA]
+Reading: three or four sentences in relative terms and the decision the director needs to make.
+
+## Three findings
+1. **Headline with its number.** What happened, with a comparison. Why it matters, in room nights or groups.
+2. **...** ...
+3. **...** ...
+
+## Three actions for {delivery month}
+1. **Verb + what + with whom.** Owner: ... · Deadline: ... · At stake: ... estimated room nights. One sentence of detail.
+2. **...** ...
+3. **...** ...
+
+## Watch
+- One or two risks, each with its number.
+
+## Data notes
+- One line for each alert in "data_check_issues", with what needs fixing.
+"""
+
 
 def _post(body, key, timeout=120):
     req = urllib.request.Request(
@@ -83,9 +143,9 @@ def _post(body, key, timeout=120):
         return json.loads(r.read().decode("utf-8"))
 
 
-def call_claude(user_text, model, key, post=None, retries=2):
+def call_claude(user_text, model, key, post=None, retries=2, system=None):
     post = post or _post
-    body = {"model": model, "max_tokens": MAX_TOKENS, "system": SYSTEM,
+    body = {"model": model, "max_tokens": MAX_TOKENS, "system": system or SYSTEM,
             "messages": [{"role": "user", "content": user_text}]}
     last = None
     for attempt in range(retries + 1):
@@ -106,47 +166,58 @@ def call_claude(user_text, model, key, post=None, retries=2):
     raise RuntimeError(f"Claude API call failed: {last}")
 
 
-def structure_problems(text, stop_reason):
+def structure_problems(text, stop_reason, lang="es"):
     """A brief that was cut off or is missing a section is not a brief."""
     problems = []
     if stop_reason == "max_tokens":
-        problems.append("el texto se cortó antes de terminar")
-    missing = [h[3:] for h in REQUIRED_SECTIONS if h not in text]
+        problems.append("el texto se cortó antes de terminar" if lang == "es" else "the text was cut off before the end")
+    missing = [h[3:] for h in REQUIRED_SECTIONS[lang] if h not in text]
     if missing:
-        problems.append("faltan secciones: " + ", ".join(missing))
+        problems.append(("faltan secciones: " if lang == "es" else "missing sections: ") + ", ".join(missing))
     if "[TABLA]" not in text:
-        problems.append("falta [TABLA] bajo 'Desempeño del mes'")
+        problems.append("falta [TABLA] bajo 'Desempeño del mes'" if lang == "es" else "missing [TABLA] under 'Month performance'")
     return problems
 
 
-def draft_brief(payload, destination, check, model=None, key=None, post=None, log=print):
+def draft_brief(payload, destination, check, model=None, key=None, post=None, log=print, lang="es"):
     """Returns (brief_text or None, info dict). check(text) -> DataFrame with 'Found in results'."""
     model = model or os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
     key = key or os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         raise RuntimeError("ANTHROPIC_API_KEY is not set")
-    base = (f"Destino: {destination}\nMes del informe: {payload['report_month']}\n\n"
-            f"Resultados de las consultas (JSON):\n```json\n{json.dumps(payload, ensure_ascii=False, default=str, indent=1)}\n```")
+    data = json.dumps(payload, ensure_ascii=False, default=str, indent=1)
+    if lang == "en":
+        base = f"Destination: {destination}\nReport month: {payload['report_month']}\n\nQuery results (JSON):\n```json\n{data}\n```"
+    else:
+        base = f"Destino: {destination}\nMes del informe: {payload['report_month']}\n\nResultados de las consultas (JSON):\n```json\n{data}\n```"
+    system = SYSTEM_EN if lang == "en" else SYSTEM
     info = {"model": model, "attempts": 0, "bad_numbers": [], "problems": []}
     prompt = base
     for attempt in (1, 2):
         info["attempts"] = attempt
-        text, used_model, stop, usage = call_claude(prompt, model, key, post=post)
+        text, used_model, stop, usage = call_claude(prompt, model, key, post=post, system=system)
         info["model"] = used_model
-        problems = structure_problems(text, stop)
+        problems = structure_problems(text, stop, lang)
         res = check(text)
         bad = res.loc[res["Found in results"] != "Yes", "Number in brief"].tolist()
-        log(f"   borrador {attempt}: {len(text.split())} palabras, fin={stop}, tokens={usage.get('output_tokens', '?')}; "
+        log(f"   [{lang}] borrador {attempt}: {len(text.split())} palabras, fin={stop}, tokens={usage.get('output_tokens', '?')}; "
             f"{len(res)} cifras, {len(bad)} no encontradas {bad if bad else ''}; estructura: {'; '.join(problems) or 'OK'}")
         if not bad and not problems:
             info["bad_numbers"], info["problems"] = [], []
             return text, info
         info["bad_numbers"], info["problems"] = bad, problems
         fixes = []
-        if bad:
-            fixes.append("usó cifras que NO están en los resultados: " + ", ".join(bad)
-                         + ". Probablemente las calculaste; usa solo cifras que aparezcan tal cual")
-        if problems:
-            fixes.append("no cumplió el formato (" + "; ".join(problems) + "); entrega el informe completo, con todas las secciones")
-        prompt = base + "\n\nTu borrador anterior " + " y ".join(fixes) + ". Reescribe el informe completo."
+        if lang == "en":
+            if bad:
+                fixes.append("used numbers that are NOT in the results: " + ", ".join(bad) + ". You probably calculated them; use only numbers that appear exactly as they are")
+            if problems:
+                fixes.append("did not follow the format (" + "; ".join(problems) + "); deliver the complete brief, with every section")
+            prompt = base + "\n\nYour previous draft " + " and ".join(fixes) + ". Rewrite the whole brief."
+        else:
+            if bad:
+                fixes.append("usó cifras que NO están en los resultados: " + ", ".join(bad)
+                             + ". Probablemente las calculaste; usa solo cifras que aparezcan tal cual")
+            if problems:
+                fixes.append("no cumplió el formato (" + "; ".join(problems) + "); entrega el informe completo, con todas las secciones")
+            prompt = base + "\n\nTu borrador anterior " + " y ".join(fixes) + ". Reescribe el informe completo."
     return None, info

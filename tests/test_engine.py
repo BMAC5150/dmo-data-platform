@@ -108,6 +108,19 @@ def test_api_brief_cut_off_or_missing_sections_is_redrafted_then_held():
     assert text is None and any("Desempeño del mes" in x for x in info["problems"])
 
 
+def test_english_brief_uses_english_sections():
+    import brief_api
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    full_en = ("# Brief\n\n## Month performance\n[TABLA]\nReading.\n\n## Three findings\n1. **F.** x\n\n"
+               "## Three actions for November 2026\n1. **A.** x\n\n## Watch\n- x\n\n## Data notes\n- x\n")
+    post, calls = _fake_api([FULL, full_en])  # a Spanish draft does not pass as English
+    text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="t", post=post, log=lambda *a: None, lang="en")
+    assert text == full_en.strip() and info["attempts"] == 2
+    assert "SYNTHETIC DATA" in calls[0]["system"] and "Month performance" in calls[0]["system"]
+    assert b.scorecard_markdown(R, "en").startswith("| Indicator | October 2026 |")
+
+
 def test_scorecard_and_table():
     R = engine.run(D, H, I)
     sc = {r["metric"]: r for r in R["scorecard"]}
