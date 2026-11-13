@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 import engine
+import render_site
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
@@ -181,7 +182,7 @@ def build_workbook(R, brief_text, check_df, path):
         r = table(ws, R["cap"], r + 1)
 
         r += 1
-        ws.write(r, 0, "Group room nights by month, all reporting hotels", F["h2"])
+        ws.write(r, 0, f"Group room nights by month, {t['comparable_hotels']} comparable hotels", F["h2"])
         mon_hdr = r + 1
         r = table(ws, t["monthly"], r + 1)
         mon_n = len(t["monthly"])
@@ -279,7 +280,26 @@ def main():
         sys.exit(1)
     out = OUT / f"Results {R['S']['report_month']}.xlsx"
     build_workbook(R, brief, check, out)
-    print("number check passed:", len(check), "numbers;", "wrote", out)
+    site = OUT / "site"
+    site.mkdir(exist_ok=True)
+    (site / "index.html").write_text(render_site.render(R, brief, check, run_meta()), encoding="utf-8")
+    print("number check passed:", len(check), "numbers;", "wrote", out, "and", site / "index.html")
+
+
+def run_meta():
+    import os
+    import subprocess
+    sha = os.environ.get("GITHUB_SHA", "")[:7]
+    if not sha:
+        try:
+            sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        except OSError:
+            sha = ""
+    return {
+        "version": sha or "local",
+        "data_source": os.environ.get("DATA_SOURCE_LABEL", "copias de los archivos del destino guardadas en el repositorio"),
+        "brief_source": os.environ.get("BRIEF_SOURCE_LABEL", "Redactado por Claude a partir de los resultados de las consultas"),
+    }
 
 
 if __name__ == "__main__":

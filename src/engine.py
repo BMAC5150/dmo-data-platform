@@ -234,7 +234,7 @@ def q_lead_fit(leads, prospects, assets, S, occ=None):
     for k in ["Sector pts", "Need period pts", "Capacity pts"]:
         c[k] = c[k].astype(int)
     return c[["Rank", "Organizer", "Type", "Sector", "Start date", "Attendees", "Peak rooms", "Est. room nights",
-              "Sector pts", "Need period pts", "Capacity pts", "Score", "Priority", "Why"]]
+              "Sector pts", "Need period pts", "Capacity pts", "Score", "Priority", "Occupancy last year", "Why"]]
 
 
 def last_12(leads, S):
@@ -285,9 +285,9 @@ def q_trend(long, S):
     # trailing 12 months vs prior 12, same comparable hotels
     t12 = int(base.loc[(base.Month > rm - 12) & (base.Month <= rm), "rn"].sum())
     p12 = int(base.loc[(base.Month > rm - 24) & (base.Month <= rm - 12), "rn"].sum())
-    monthly = long.groupby("Month")["rn"].sum().reset_index()
+    monthly = base.groupby("Month")["rn"].sum().reset_index()  # same comparable hotels every month
     monthly["Month"] = monthly["Month"].astype(str)
-    monthly.columns = ["Month", "Group room nights (all reporting hotels)"]
+    monthly.columns = ["Month", "Group room nights (comparable hotels)"]
     return {
         "segment": by("Segment", SEGMENTS),
         "origin": by("Origin", ORIGINS),
