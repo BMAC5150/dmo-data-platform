@@ -367,11 +367,11 @@ def main():
             brief, info = brief_api.draft_brief(payload, "Ixtapa-Zihuatanejo", lambda t: check_brief(t, payload))
         except RuntimeError as e:  # API down or refused: results still go out, the brief is held
             print(f"   La API de Claude no respondió: {e}")
-            brief, info = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "error": str(e)}
+            brief, info = None, {"model": brief_api.DEFAULT_MODEL, "attempts": 0, "bad_numbers": [], "problems": [], "error": str(e)}
         source = f"Redactado por la API de Claude ({info['model']}) a partir de los resultados de las consultas"
     else:
         brief = (ROOT / "brief" / "brief_es.md").read_text()
-        info = {"model": None, "attempts": 0, "bad_numbers": []}
+        info = {"model": None, "attempts": 0, "bad_numbers": [], "problems": []}
         source = "Redactado por Claude a partir de los resultados de las consultas"
 
     step(6, "Verificar cada cifra del informe")
@@ -384,7 +384,8 @@ def main():
     if brief is None:
         check = pd.DataFrame([{"Number in brief": b, "Found in results": "NO"} for b in info["bad_numbers"]],
                              columns=["Number in brief", "Found in results"])
-        why = f"cifras no encontradas en los resultados: {info['bad_numbers']}" if info["bad_numbers"] else "la API no respondió"
+        why = ("; ".join(([f"cifras no encontradas en los resultados: {info['bad_numbers']}"] if info["bad_numbers"] else [])
+                         + info.get("problems", [])) or "la API no respondió")
         print(f"   INFORME RETENIDO: {why}")
     else:
         print(f"   {len(check)} de {len(check)} cifras encontradas en los resultados")
@@ -411,12 +412,14 @@ def write_summary(R, payload, brief, check, info, meta):
     lines = [
         "## Corrida: Ixtapa-Zihuatanejo · " + payload["report_month"] + " · DATOS SINTÉTICOS",
         "",
+        f"Versión del código: `{meta['version']}`" + (f" · intentos de redacción: {info['attempts']}" if info.get("attempts") else ""),
+        "",
         "| Paso | Resultado |", "|---|---|",
         f"| Leer y revisar estructura | ✅ {render_site.tr_check(chk.loc[chk.Check == 'Rows read', 'Result'].iloc[0])} |",
         f"| Revisar los datos | {'⚠️' if (chk.Status == 'CHECK').any() else '✅'} {int((chk.Status == 'CHECK').sum())} alertas |",
         f"| 6 consultas fijas | ✅ {payload['lead_targeting']['priority']} prospectos prioritarios |",
         f"| Informe | {'✅ ' + meta['brief_source'] if brief else '⛔ retenido'} |",
-        f"| Verificación de cifras | {'✅ ' + str(len(check)) + ' de ' + str(len(check)) if brief else ('⛔ no encontradas: ' + ', '.join(info['bad_numbers']) if info['bad_numbers'] else '⛔ la API no respondió')} |",
+        f"| Verificación | {'✅ ' + str(len(check)) + ' de ' + str(len(check)) + ' cifras; estructura completa' if brief else '⛔ ' + ('; '.join(([('cifras no encontradas: ' + ', '.join(info['bad_numbers']))] if info['bad_numbers'] else []) + info.get('problems', [])) or 'la API no respondió')} |",
         "",
         f"Noches de grupo {payload['report_month']}: **{g['month']:,}** ({g['change']*100:+.1f}% contra el mismo mes del año pasado, {g['comparable_hotels']} hoteles comparables).",
     ]

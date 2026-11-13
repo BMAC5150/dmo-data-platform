@@ -93,6 +93,21 @@ def test_number_check_catches_a_wrong_number():
     assert (bad["Found in results"] == "NO").any()
 
 
+def test_api_brief_cut_off_or_missing_sections_is_redrafted_then_held():
+    import brief_api
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    cut = (FULL.split("## Para vigilar")[0] + "Noviembre tiene 1 grupo y un", "max_tokens")
+    post, calls = _fake_api([cut, FULL])
+    text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
+    assert text == FULL.strip() and info["attempts"] == 2
+    assert "se cortó" in calls[1]["messages"][0]["content"] and "Para vigilar" in calls[1]["messages"][0]["content"]
+    old_format = "# Informe\n\n## Tres hallazgos\n1. **H.** 26 de 92."
+    post, calls = _fake_api([old_format, old_format])
+    text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
+    assert text is None and any("Desempeño del mes" in x for x in info["problems"])
+
+
 def test_scorecard_and_table():
     R = engine.run(D, H, I)
     sc = {r["metric"]: r for r in R["scorecard"]}
@@ -111,15 +126,21 @@ def _fake_api(replies):
     calls = []
     def post(body, key):
         calls.append(body)
-        return {"content": [{"type": "text", "text": replies[min(len(calls), len(replies)) - 1]}], "model": body["model"]}
+        r = replies[min(len(calls), len(replies)) - 1]
+        text, stop = (r if isinstance(r, tuple) else (r, "end_turn"))
+        return {"content": [{"type": "text", "text": text}], "model": body["model"], "stop_reason": stop}
     return post, calls
+
+
+FULL = ("# Informe\n\n## Desempeño del mes\n[TABLA]\nLectura.\n\n## Tres hallazgos\n1. **H.** x\n\n"
+        "## Tres acciones para noviembre 2026\n1. **A.** x\n\n## Para vigilar\n- x\n\n## Notas sobre los datos\n- x\n")
 
 
 def test_api_brief_passes_check_first_time():
     import brief_api
     R = engine.run(D, H, I)
     p = b.brief_payload(R)
-    good = "# Informe\nGanamos 26 de 92 decisiones (28.3%), con 8,231 noches."
+    good = FULL + "Ganamos 26 de 92 decisiones (28.3%), con 8,231 noches."
     post, calls = _fake_api([good])
     text, info = brief_api.draft_brief(p, "Ixtapa-Zihuatanejo", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
     assert text == good and info["attempts"] == 1 and len(calls) == 1
@@ -132,8 +153,8 @@ def test_api_brief_redrafts_then_holds():
     import brief_api
     R = engine.run(D, H, I)
     p = b.brief_payload(R)
-    bad = "Perdimos 43 de 66 por precio, acceso aéreo y seguridad."  # 43 is a sum Claude calculated: not in results
-    good = "Perdimos 66 grupos; 17 por precio."
+    bad = FULL + "Perdimos 43 de 66 por precio, acceso aéreo y seguridad."  # 43 is a sum Claude calculated: not in results
+    good = FULL + "Perdimos 66 grupos; 17 por precio."
     post, calls = _fake_api([bad, good])
     text, info = brief_api.draft_brief(p, "X", lambda t: b.check_brief(t, p), key="test", post=post, log=lambda *a: None)
     assert text == good and info["attempts"] == 2

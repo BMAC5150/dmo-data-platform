@@ -14,6 +14,8 @@ import urllib.request
 API_URL = "https://api.anthropic.com/v1/messages"
 API_VERSION = "2023-06-01"
 DEFAULT_MODEL = "claude-sonnet-5-5"
+MAX_TOKENS = 8000
+REQUIRED_SECTIONS = ["## Desempeño del mes", "## Tres hallazgos", "## Tres acciones", "## Para vigilar", "## Notas sobre los datos"]
 
 SYSTEM = """Eres el estratega de ventas de una oficina de convenciones y visitantes (OCV) pequeña en México. Cada mes escribes, para el director o la directora, un informe de una página que le dice qué pasó, por qué importa y qué hacer este mes. Un buen informe cambia lo que el equipo hace mañana; un informe genérico no sirve.
 
@@ -83,7 +85,7 @@ def _post(body, key, timeout=120):
 
 def call_claude(user_text, model, key, post=None, retries=2):
     post = post or _post
-    body = {"model": model, "max_tokens": 3000, "system": SYSTEM,
+    body = {"model": model, "max_tokens": MAX_TOKENS, "system": SYSTEM,
             "messages": [{"role": "user", "content": user_text}]}
     last = None
     for attempt in range(retries + 1):
@@ -92,7 +94,7 @@ def call_claude(user_text, model, key, post=None, retries=2):
             text = "".join(b.get("text", "") for b in resp.get("content", []) if b.get("type") == "text").strip()
             if not text:
                 raise RuntimeError(f"empty response (stop_reason={resp.get('stop_reason')})")
-            return text, resp.get("model", model)
+            return text, resp.get("model", model), resp.get("stop_reason"), resp.get("usage", {})
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", "replace")[:300]
             last = RuntimeError(f"HTTP {e.code}: {detail}")
@@ -104,6 +106,19 @@ def call_claude(user_text, model, key, post=None, retries=2):
     raise RuntimeError(f"Claude API call failed: {last}")
 
 
+def structure_problems(text, stop_reason):
+    """A brief that was cut off or is missing a section is not a brief."""
+    problems = []
+    if stop_reason == "max_tokens":
+        problems.append("el texto se cortó antes de terminar")
+    missing = [h[3:] for h in REQUIRED_SECTIONS if h not in text]
+    if missing:
+        problems.append("faltan secciones: " + ", ".join(missing))
+    if "[TABLA]" not in text:
+        problems.append("falta [TABLA] bajo 'Desempeño del mes'")
+    return problems
+
+
 def draft_brief(payload, destination, check, model=None, key=None, post=None, log=print):
     """Returns (brief_text or None, info dict). check(text) -> DataFrame with 'Found in results'."""
     model = model or os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
@@ -112,20 +127,26 @@ def draft_brief(payload, destination, check, model=None, key=None, post=None, lo
         raise RuntimeError("ANTHROPIC_API_KEY is not set")
     base = (f"Destino: {destination}\nMes del informe: {payload['report_month']}\n\n"
             f"Resultados de las consultas (JSON):\n```json\n{json.dumps(payload, ensure_ascii=False, default=str, indent=1)}\n```")
-    info = {"model": model, "attempts": 0, "bad_numbers": []}
+    info = {"model": model, "attempts": 0, "bad_numbers": [], "problems": []}
     prompt = base
     for attempt in (1, 2):
         info["attempts"] = attempt
-        text, used_model = call_claude(prompt, model, key, post=post)
+        text, used_model, stop, usage = call_claude(prompt, model, key, post=post)
         info["model"] = used_model
+        problems = structure_problems(text, stop)
         res = check(text)
         bad = res.loc[res["Found in results"] != "Yes", "Number in brief"].tolist()
-        log(f"   draft {attempt}: {len(res)} numbers, {len(bad)} not found in results {bad if bad else ''}")
-        if not bad:
-            info["bad_numbers"] = []
+        log(f"   borrador {attempt}: {len(text.split())} palabras, fin={stop}, tokens={usage.get('output_tokens', '?')}; "
+            f"{len(res)} cifras, {len(bad)} no encontradas {bad if bad else ''}; estructura: {'; '.join(problems) or 'OK'}")
+        if not bad and not problems:
+            info["bad_numbers"], info["problems"] = [], []
             return text, info
-        info["bad_numbers"] = bad
-        prompt = (base + "\n\nTu borrador anterior usó cifras que NO están en los resultados: "
-                  + ", ".join(bad) + ". Probablemente las calculaste. Reescribe el informe completo usando "
-                  "solo cifras que aparezcan tal cual en los resultados.")
+        info["bad_numbers"], info["problems"] = bad, problems
+        fixes = []
+        if bad:
+            fixes.append("usó cifras que NO están en los resultados: " + ", ".join(bad)
+                         + ". Probablemente las calculaste; usa solo cifras que aparezcan tal cual")
+        if problems:
+            fixes.append("no cumplió el formato (" + "; ".join(problems) + "); entrega el informe completo, con todas las secciones")
+        prompt = base + "\n\nTu borrador anterior " + " y ".join(fixes) + ". Reescribe el informe completo."
     return None, info
