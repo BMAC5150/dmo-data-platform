@@ -32,7 +32,7 @@ assets = pd.DataFrame([
     ("Hotel", "Hotel Faro Viejo", 160, 2, 200, 120),
     ("Hotel", "Suites Manglar", 140, 0, 0, 0),
     ("Hotel", "Hotel Isla Pequeña", 120, 0, 0, 0),
-    ("Venue", "Jardín Las Palmas (outdoor)", 0, 1, 1800, 600),
+    ("Venue", "Jardín Las Palmas (al aire libre)", 0, 1, 1800, 600),
     ("Venue", "Club de Playa Marino", 0, 1, 500, 300),
     ("Supplier", "DMC Costa Grande", None, None, None, None),
     ("Supplier", "Audiovisual Pacífico", None, None, None, None),

@@ -15,6 +15,12 @@ API_URL = "https://api.anthropic.com/v1/messages"
 API_VERSION = "2023-06-01"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 MAX_TOKENS = 8000
+# Labels that come from the data in English and must never appear in the Spanish brief.
+ENGLISH_LABELS = ["too big for the destination", "fits comfortably", "tight fit", "Air access", "Safety perception",
+                  "Venue too small", "Dates not available", "Destination profile", "Event cancelled", "Hotel referral",
+                  "Trade show", "Medical association", "Insurance & finance", "Mexican corporate", "Government & other",
+                  "room nights", "Domestic", "International"]
+
 REQUIRED_SECTIONS = {
     "es": ["## Desempeño del mes", "## Tres hallazgos", "## Tres acciones", "## Para vigilar", "## Notas sobre los datos"],
     "en": ["## Month performance", "## Three findings", "## Three actions", "## Watch", "## Data notes"],
@@ -49,7 +55,7 @@ ACCIONES
 
 ESTILO
 - Español de México, directo, para alguien ocupado. Entre 350 y 450 palabras. Sin adjetivos de relleno, sin exclamaciones, sin emojis.
-- Traduce las etiquetas en inglés (Association = asociaciones, Corporate = corporativo, Incentive = incentivos, Government & other = gobierno y otros, Medical association = asociaciones médicas, Insurance & finance = seguros y finanzas, Mexican corporate = corporativo mexicano, Pharma = farmacéutico, Sports = deportes, Price = precio, Air access = acceso aéreo, Safety perception = percepción de seguridad, Venue too small = sede insuficiente, Dates not available = fechas no disponibles, Hotel referral = referencia de hoteles, Trade show = ferias, RFP (Cvent) = solicitudes por Cvent, Direct = contacto directo, Referral = recomendación, Domestic = nacional, International = internacional). Nombres de organizaciones, hoteles y destinos van tal cual.
+- Traduce las etiquetas en inglés (Association = asociaciones, Corporate = corporativo, Incentive = incentivos, Government & other = gobierno y otros, Medical association = asociaciones médicas, Insurance & finance = seguros y finanzas, Mexican corporate = corporativo mexicano, Pharma = farmacéutico, Sports = deportes, Price = precio, Air access = acceso aéreo, Safety perception = percepción de seguridad, Venue too small = sede insuficiente, Dates not available = fechas no disponibles, Hotel referral = referencia de hoteles, Trade show = ferias, RFP (Cvent) = solicitudes por Cvent, Direct = contacto directo, Referral = recomendación, Domestic = nacional, International = internacional, fits = cabe con holgura, tight = cabe justo, too big for the destination = demasiado grande para el destino). Ninguna etiqueta en inglés puede aparecer en el informe. Nombres de organizaciones, hoteles y destinos van tal cual.
 - Los datos son sintéticos: conserva la segunda línea del formato tal cual.
 
 Devuelve SOLO el informe en Markdown, con exactamente este formato:
@@ -176,6 +182,10 @@ def structure_problems(text, stop_reason, lang="es"):
     missing = [h[3:] for h in REQUIRED_SECTIONS[lang] if h not in text]
     if missing:
         problems.append(("faltan secciones: " if lang == "es" else "missing sections: ") + ", ".join(missing))
+    if lang == "es":
+        leaks = [w for w in ENGLISH_LABELS if w.lower() in text.lower()]
+        if leaks:
+            problems.append("etiquetas en inglés en el informe: " + ", ".join(f'"{w}"' for w in leaks))
     if "[TABLA]" not in text:
         problems.append("falta [TABLA] bajo 'Desempeño del mes'" if lang == "es" else "missing [TABLA] under 'Month performance'")
     return problems

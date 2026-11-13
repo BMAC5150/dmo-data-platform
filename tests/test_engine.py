@@ -147,6 +147,14 @@ def test_english_is_a_translation_with_the_same_numbers():
     assert text is None and any("differ from the Spanish" in x for x in info["problems"])
 
 
+def test_english_labels_in_spanish_brief_are_caught():
+    import brief_api
+    leak = FULL + "Liberar a Colegio Encino, marcado too big for the destination."
+    assert any("etiquetas en inglés" in x for x in brief_api.structure_problems(leak, "end_turn", "es"))
+    assert not brief_api.structure_problems(FULL, "end_turn", "es")
+    assert not any("etiquetas" in x for x in brief_api.structure_problems(leak, "end_turn", "en"))
+
+
 def test_scorecard_and_table():
     R = engine.run(D, H, I)
     sc = {r["metric"]: r for r in R["scorecard"]}
