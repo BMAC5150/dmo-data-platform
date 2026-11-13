@@ -1,0 +1,69 @@
+name: Publicar sin correr (demo)
+
+# Republishes the site of an earlier run exactly as it was, plus the partner portal at /portal/.
+# Does not run the engine or call the Claude API: the dashboard and the brief stay byte for byte the same.
+
+on:
+  workflow_dispatch:
+    inputs:
+      corrida:
+        description: "Número de la corrida a republicar (vacío = la última que terminó bien)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: corrida-y-pagina
+  cancel-in-progress: false
+
+jobs:
+  preparar:
+    name: Republicar la página de una corrida anterior + portal
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obtener el portal
+        uses: actions/checkout@v7
+
+      - name: Traer la página publicada por esa corrida
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ inputs.corrida }}
+        run: |
+          if [ -z "$NUM" ]; then
+            NUM=$(gh run list -R "$GITHUB_REPOSITORY" --workflow run.yml --status success -L 1 --json number -q '.[0].number')
+          fi
+          ID=$(gh run list -R "$GITHUB_REPOSITORY" --workflow run.yml -L 100 --json number,databaseId -q ".[] | select(.number == $NUM) | .databaseId")
+          echo "Corrida #$NUM (id $ID)"
+          gh run download "$ID" -R "$GITHUB_REPOSITORY" -n "resultados-$NUM" -D prev
+          test -f prev/site/index.html
+          echo "### Republicada la página de la corrida #$NUM, sin cambios, más el portal en /portal/" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Añadir el portal
+        run: |
+          mkdir -p prev/site/portal
+          cp portal/index.html prev/site/portal/index.html
+
+      - name: Preparar la página para publicar
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: prev/site
+
+  publicar:
+    name: Publicar la página (GitHub Pages)
+    needs: preparar
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deploy
+        uses: actions/deploy-pages@v5
