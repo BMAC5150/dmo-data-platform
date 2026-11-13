@@ -346,7 +346,7 @@ T = {
         "rule_cap": "<b>Capacidad, hasta {w}.</b> Completo hasta {r} habitaciones pico y {a} asistentes. Baja a 0 en {m} habitaciones o en la capacidad de la sede más grande.",
         "lead_cols": ["", "Organización", "Llegada", "Asistentes", "Hab. pico", "Noches est.", "Puntaje", "Por qué"],
         "why_target": "Sector meta del plan", "why_secondary": "Sector secundario", "why_other": "Fuera de los sectores meta",
-        "why_occ": "{month} al {o}% de ocupación", "why_fit": "cabe con holgura", "why_tight": "cabe justo", "why_big": "demasiado grande",
+        "why_occ": "{month} al {o}% de ocupación", "why_fit": "cabe con holgura", "why_tight": "cabe justo", "why_big": "demasiado grande", "why_clash": "mismas fechas que {orgs}",
         "more_leads": "Ver los otros {n} candidatos",
         "held_h": "Informe retenido", "held_p_nums": "El borrador de este mes usó cifras que no aparecen en los resultados ({nums}), así que no se publica.",
         "held_p_api": "La API de Claude no respondió durante la corrida.", "held_tail": "El operador lo revisa. El tablero y la prospección sí se publican.",
@@ -402,7 +402,7 @@ T = {
         "rule_cap": "<b>Capacity, up to {w}.</b> Full points up to {r} peak rooms and {a} attendees, falling to 0 at {m} rooms or the largest venue's capacity.",
         "lead_cols": ["", "Organization", "Arrival", "Attendees", "Peak rooms", "Est. room nights", "Score", "Why"],
         "why_target": "Plan target sector", "why_secondary": "Secondary sector", "why_other": "Not a target sector",
-        "why_occ": "{month} at {o}% occupancy", "why_fit": "fits comfortably", "why_tight": "tight fit", "why_big": "too big",
+        "why_occ": "{month} at {o}% occupancy", "why_fit": "fits comfortably", "why_tight": "tight fit", "why_big": "too big", "why_clash": "same dates as {orgs}",
         "more_leads": "Show the other {n} candidates",
         "held_h": "Brief held", "held_p_nums": "This month's draft used numbers that are not in the results ({nums}), so it is not published.",
         "held_p_api": "The Claude API did not respond during the run.", "held_tail": "The operator reviews it. The dashboard and prospects are still published.",
@@ -537,7 +537,9 @@ def render_lang(lang, R, brief_text, check_df, meta, now):
         d = pd.Timestamp(r["Start date"])
         need = L["why_occ"].format(month=MONTHS[lang][d.month - 1], o=f"{o:.0f}") if pd.notna(o) else ""
         cap = L["why_fit"] if r["Capacity pts"] >= S["w_capacity"] else (L["why_tight"] if r["Capacity pts"] > 0 else L["why_big"])
-        return ", ".join(x for x in [sec, need, cap] if x) + "."
+        clash = r.get("Same dates as", "")
+        clash = L["why_clash"].format(orgs=clash.replace("; ", ", ")) if isinstance(clash, str) and clash else ""
+        return ", ".join(x for x in [sec, need, cap, clash] if x) + "."
 
     def score_cell(r):
         parts = [(r["Sector pts"], TEAL), (r["Need period pts"], GOLD), (r["Capacity pts"], INDIGO)]

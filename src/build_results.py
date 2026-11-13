@@ -25,6 +25,10 @@ def brief_payload(R):
     seg = t["segment"].set_index("Segment")
     rm, ly = str(S["report_month"]), str(S["report_month"] - 12)
     top = f.iloc[0]
+    f = f.assign(**{"Capacity fit": f["Capacity pts"].map(
+        lambda x: "fits" if x >= S["w_capacity"] else ("tight" if x > 0 else "too big for the destination"))})
+    lead_cols = ["Organizer", "Type", "Sector", "Start date", "Attendees", "Peak rooms", "Score",
+                 "Capacity fit", "Venues that fit", "Same dates as"]
     return {
         "report_month": rm,
         "comparison_month": ly,
@@ -37,10 +41,10 @@ def brief_payload(R):
         "loss_reasons_last_12_months": R["loss"].to_dict("records"), "lost_to": R["lost_to"].to_dict("records"),
         "lead_targeting": {"candidates": len(f), "priority": int((f.Priority == "Yes").sum()),
                            "score_100": int((f.Score == 100).sum()), "threshold": S["threshold"],
+                           "comfortable_peak_rooms": S["comfort_rooms"], "comfortable_attendees": S["comfort_att"],
                            "starting_within_3_months": f[pd.to_datetime(f["Start date"]) <= (S["report_month"] + 3).to_timestamp(how="end")][
-                               ["Rank", "Organizer", "Type", "Sector", "Start date", "Attendees", "Peak rooms", "Score"]].to_dict("records"),
-                           "top_10": f.head(10)[["Organizer", "Type", "Sector", "Start date", "Attendees",
-                                                 "Peak rooms", "Score"]].to_dict("records")},
+                               ["Rank"] + lead_cols].to_dict("records"),
+                           "top_10": f.head(10)[lead_cols].to_dict("records")},
         "need_periods_next_6_months": R["need"].to_dict("records"),
         "need_months_setting": S["need_months"],
         "data_check_issues": R["check"].query("Status == 'CHECK'")[["Check", "Result"]].to_dict("records"),

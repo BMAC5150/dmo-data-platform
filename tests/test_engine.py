@@ -211,6 +211,28 @@ def test_api_brief_redrafts_then_holds():
     assert text is None and info["bad_numbers"] == ["43"] and len(calls) == 2
 
 
+def test_overlapping_priority_leads_are_flagged():
+    R = engine.run(D, H, I)
+    clashes = {c["organizer"]: c for c in R["insights"]["date_clashes"]}
+    cedro = clashes["Corporativo Cedro"]
+    assert {"Seguros Altavista", "Grupo Cumbres"} <= {q["organizer"] for q in cedro["overlaps_with"]}
+    assert cedro["most_peak_rooms_on_one_night"] == 486 + 218 + 331, "27-28 Sep 2027: three groups in house"
+    assert clashes["Grupo Financiero Cumbres"]["overlaps_with"][0]["status"] == "won group"
+    f = R["fit"].set_index("Organizer")
+    assert "Seguros Altavista" in f.loc["Corporativo Cedro", "Same dates as"]
+    assert "Seguros Mezquite" not in clashes, "no overlap, no flag"
+
+
+def test_tight_lead_carries_size_facts_for_the_brief():
+    R = engine.run(D, H, I)
+    p = b.brief_payload(R)
+    lt = p["lead_targeting"]
+    cedro = next(r for r in lt["top_10"] if r["Organizer"] == "Corporativo Cedro")
+    assert cedro["Capacity fit"] == "tight" and cedro["Venues that fit"] == 1
+    assert lt["comfortable_attendees"] == 650 and lt["comfortable_peak_rooms"] == 400
+    assert 1035.0 in b.allowed_numbers(p), "the overlap total must be quotable in the brief"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

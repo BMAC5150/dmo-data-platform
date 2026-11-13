@@ -237,6 +237,57 @@ def q_lead_fit(leads, prospects, assets, S, occ=None):
               "Sector pts", "Need period pts", "Capacity pts", "Score", "Priority", "Occupancy last year", "Why"]]
 
 
+def q_date_clashes(fit, leads, prospects, S):
+    """Priority leads whose stay overlaps another priority lead or a group already won.
+
+    Capacity in the lead fit is scored one group at a time; this adds the groups competing
+    for the same dates. Stay = start date to start date + nights (3 if nights unknown).
+    "most_peak_rooms_on_one_night" adds the peak rooms of every group in house on each night of
+    the stay and keeps the highest night; it assumes each group is at its peak, so it is an upper bound.
+    No destination-wide limit is applied: Settings only hold limits for one group.
+    """
+    rm_end = S["report_month"].to_timestamp(how="end")
+    l = leads.assign(Nights=(leads["End date"] - leads["Start date"]).dt.days)
+    stays = {}
+    for _, r in l.iterrows():
+        stays[r.Organizer] = (r["Start date"], r["End date"])
+    if len(prospects):
+        for _, r in prospects.iterrows():
+            n = r["Nights"] if pd.notna(r["Nights"]) else 3
+            stays.setdefault(r.Organizer, (r["Start date"], r["Start date"] + pd.Timedelta(days=int(n))))
+
+    prio = fit[fit.Priority == "Yes"]
+    pool = [{"organizer": r.Organizer, "status": "priority " + ("lead" if r.Type == "Lead" else "prospect"),
+             "peak_rooms": int(r["Peak rooms"])} for _, r in prio.iterrows()]
+    won = l[(l.Status == "Won") & (l["Start date"] > rm_end)]
+    pool += [{"organizer": r.Organizer, "status": "won group", "peak_rooms": int(r["Peak rooms"])} for _, r in won.iterrows()]
+    for p in pool:
+        s, e = stays[p["organizer"]]
+        p["start_date"], p["end_date"] = s.strftime("%Y-%m-%d"), e.strftime("%Y-%m-%d")
+        p["_s"], p["_e"] = s, e
+
+    out = []
+    for p in pool:
+        if p["status"] == "won group":
+            continue
+        others = [q for q in pool if q is not p and q["_s"] < p["_e"] and p["_s"] < q["_e"]]
+        if not others:
+            continue
+        nights = pd.date_range(p["_s"], p["_e"] - pd.Timedelta(days=1), freq="D")
+        same_night = max(p["peak_rooms"] + sum(q["peak_rooms"] for q in others if q["_s"] <= n < q["_e"]) for n in nights)
+        out.append({"organizer": p["organizer"], "start_date": p["start_date"], "end_date": p["end_date"],
+                    "peak_rooms": p["peak_rooms"],
+                    "overlaps_with": [{k: q[k] for k in ["organizer", "status", "start_date", "end_date", "peak_rooms"]} for q in others],
+                    "most_peak_rooms_on_one_night": same_night})
+    return out
+
+
+def venues_that_fit(assets, attendees):
+    """How many hotels and venues in the asset database can hold this many attendees in one room."""
+    cap = pd.to_numeric(assets["Max capacity"], errors="coerce")
+    return int((cap >= attendees).sum()) if pd.notna(attendees) else 0
+
+
 def last_12(leads, S):
     rm = S["report_month"]
     start = (rm - 11).to_timestamp()
@@ -489,11 +540,17 @@ def run(data_xlsx, responses_xlsx, imports_dir, config_path=HERE / "config_ixtap
     need = q_need_periods(long, leads, S)
     occ = occupancy_by_calendar_month(data["PublicData"], S)
     fit = q_lead_fit(leads, prospects, assets, S, occ)
+    clashes = q_date_clashes(fit, leads, prospects, S)
+    by_org = {c["organizer"]: c for c in clashes}
+    fit["Same dates as"] = fit["Organizer"].map(
+        lambda o: "; ".join(q["organizer"] for q in by_org[o]["overlaps_with"]) if o in by_org else "")
+    fit["Venues that fit"] = fit["Attendees"].map(lambda a: venues_that_fit(assets, a))
     loss, lost_to, n_lost = q_loss_reasons(leads, S)
     cap = q_capacity(assets, S)
     trend = q_trend(long, S)
     box, tot = q_boxscore(leads, S)
     insights = q_insights(leads, fit, occ, S)
+    insights["date_clashes"] = clashes
     scorecard = q_scorecard(long, leads, data["PublicData"], trend, S)
     raw = {"leads": len(data["Leads"]), "assets": len(assets),
            "responses": len(responses["Form responses 1"]), "imports": sum(len(v) for v in imports.values())}

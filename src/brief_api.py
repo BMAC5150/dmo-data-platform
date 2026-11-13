@@ -19,7 +19,7 @@ MAX_TOKENS = 8000
 ENGLISH_LABELS = ["too big for the destination", "fits comfortably", "tight fit", "Air access", "Safety perception",
                   "Venue too small", "Dates not available", "Destination profile", "Event cancelled", "Hotel referral",
                   "Trade show", "Medical association", "Insurance & finance", "Mexican corporate", "Government & other",
-                  "room nights", "Domestic", "International"]
+                  "room nights", "Domestic", "International", "priority lead", "priority prospect", "won group"]
 
 REQUIRED_SECTIONS = {
     "es": ["## Desempeño del mes", "## Tres hallazgos", "## Tres acciones", "## Para vigilar", "## Notas sobre los datos"],
@@ -52,10 +52,12 @@ ACCIONES
 - Cada una nombra organizaciones concretas de los resultados, un responsable (Dirección, Ventas o Hoteles socios), una fecha límite y lo que está en juego en noches.
 - Prohibido lo genérico: nada de "fortalecer la promoción", "mejorar la marca", "aprovechar oportunidades", "dar seguimiento" sin a quién y para cuándo.
 - No propongas perseguir ni conseguir una oportunidad marcada "too big for the destination" o que no sea prioritaria ("priority": false); a esas solo se les puede proponer cerrarlas o liberarlas. Para crecer, usa los prospectos prioritarios.
+- Fechas cruzadas: antes de escribir una acción, busca a cada organización en "date_clashes". Si aparece, la acción dice con qué grupos coincide en fechas y cuántas habitaciones pico suman en la noche más cargada ("most_peak_rooms_on_one_night"), e incluye confirmar con Hoteles socios que pueden alojar a todos esos grupos en esas fechas. Nunca propongas dos grupos que coinciden en fechas como si fueran independientes.
+- Tamaño: si una acción propone una oportunidad con "Capacity fit": "tight", di que está por encima del tamaño cómodo: sus asistentes y habitaciones pico contra los cómodos ("comfortable_attendees", "comfortable_peak_rooms") y cuántos espacios del destino la pueden alojar ("Venues that fit"). No nombres esos espacios.
 
 ESTILO
 - Español de México, directo, para alguien ocupado. Entre 350 y 450 palabras. Sin adjetivos de relleno, sin exclamaciones, sin emojis.
-- Traduce las etiquetas en inglés (Association = asociaciones, Corporate = corporativo, Incentive = incentivos, Government & other = gobierno y otros, Medical association = asociaciones médicas, Insurance & finance = seguros y finanzas, Mexican corporate = corporativo mexicano, Pharma = farmacéutico, Sports = deportes, Price = precio, Air access = acceso aéreo, Safety perception = percepción de seguridad, Venue too small = sede insuficiente, Dates not available = fechas no disponibles, Hotel referral = referencia de hoteles, Trade show = ferias, RFP (Cvent) = solicitudes por Cvent, Direct = contacto directo, Referral = recomendación, Domestic = nacional, International = internacional, fits = cabe con holgura, tight = cabe justo, too big for the destination = demasiado grande para el destino). Ninguna etiqueta en inglés puede aparecer en el informe. Nombres de organizaciones, hoteles y destinos van tal cual.
+- Traduce las etiquetas en inglés (Association = asociaciones, Corporate = corporativo, Incentive = incentivos, Government & other = gobierno y otros, Medical association = asociaciones médicas, Insurance & finance = seguros y finanzas, Mexican corporate = corporativo mexicano, Pharma = farmacéutico, Sports = deportes, Price = precio, Air access = acceso aéreo, Safety perception = percepción de seguridad, Venue too small = sede insuficiente, Dates not available = fechas no disponibles, Hotel referral = referencia de hoteles, Trade show = ferias, RFP (Cvent) = solicitudes por Cvent, Direct = contacto directo, Referral = recomendación, Domestic = nacional, International = internacional, fits = cabe con holgura, tight = cabe justo, priority lead = oportunidad prioritaria, priority prospect = prospecto prioritario, won group = grupo ganado, too big for the destination = demasiado grande para el destino). Ninguna etiqueta en inglés puede aparecer en el informe. Nombres de organizaciones, hoteles y destinos van tal cual.
 - Los datos son sintéticos: conserva la segunda línea del formato tal cual.
 
 Devuelve SOLO el informe en Markdown, con exactamente este formato:
@@ -110,6 +112,8 @@ ACTIONS
 - Each names specific organizations from the results, an owner (Director, Sales or Partner hotels), a deadline and what is at stake in room nights.
 - No generic advice: nothing like "strengthen promotion", "improve the brand", "seize opportunities", or "follow up" without who and by when.
 - Never propose pursuing or winning a lead marked "too big for the destination" or not a priority ("priority": false); for those, the only action you may propose is to close or release them. For growth, use the priority prospects.
+- Overlapping dates: before writing an action, look up each organization in "date_clashes". If it is there, the action says which groups share its dates and how many peak rooms they add up to on the busiest night ("most_peak_rooms_on_one_night"), and includes confirming with Partner hotels that they can house all those groups on those dates. Never propose two groups with overlapping dates as if they were independent.
+- Size: if an action proposes a lead with "Capacity fit": "tight", say it is above the comfortable size: its attendees and peak rooms against the comfortable ones ("comfortable_attendees", "comfortable_peak_rooms") and how many of the destination's spaces can hold it ("Venues that fit"). Do not name those spaces.
 
 STYLE
 - Plain, direct English for a busy executive. Between 350 and 450 words. No filler adjectives, no exclamation marks, no emojis.
