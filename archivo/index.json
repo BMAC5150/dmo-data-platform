@@ -1,6 +1,15 @@
 [
  {
   "month": "2026-10",
+  "run": 10,
+  "date": "2026-11-13T09:39-06:00",
+  "folder": "archivo/2026-10/2026-11-13-corrida-10",
+  "workbook": "Results 2026-10.xlsx",
+  "version": "36bb044",
+  "mode": "api"
+ },
+ {
+  "month": "2026-10",
   "run": 9,
   "date": "2026-11-13T09:36-06:00",
   "folder": "archivo/2026-10/2026-11-13-corrida-9",
