@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: ocean header with the gold horizon line, three entry cards on sea-mist, forms open in place (hash views). Same tokens as the demo's "Costa Grande" design. */
+/* Layout: ocean header with the gold horizon line, four entry cards (2 x 2) on sea-mist, forms open in place (hash views). Same tokens as the demo's "Costa Grande" design. */
 :root {
   --ocean: #0e2a33; --teal: #00839b; --gold: #c9801a; --horizon: #e8a63c;
   --mist: #f3f6f5; --white: #ffffff; --ink: #14262c; --slate: #5d7178; --line: #dfe6e6; --line-soft: #edf1f1;
@@ -44,7 +44,7 @@ main { padding: 34px 0 56px; }
 .chip { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); display: inline-flex; gap: 6px; align-items: center; }
 .chip.pending { background: var(--warn-bg); color: var(--warn); font-weight: 600; }
 
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+.cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 22px; }
 .card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
 .card .who { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
 .card h3 { font: 400 23px/1.2 var(--display); margin: 0; text-wrap: balance; }
@@ -90,6 +90,8 @@ legend { font: 500 17px var(--display); margin-bottom: 10px; }
 .done h3 { margin: 0 0 4px; font: 500 19px var(--display); color: var(--ok); }
 .done p { margin: 0; }
 .tbl-scroll { overflow-x: auto; }
+.src input { font-size: 14px; }
+.rn.seats { max-width: 420px; }
 
 footer { color: var(--slate); font-size: 13px; padding: 0 0 36px; }
 footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: grid; gap: 4px; }
@@ -133,6 +135,15 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
   };
   var NEXT_LEAD = "L-0161";  // the synthetic Leads tab ends at L-0160
 
+  // Destination data (PublicData tab). Prefilled with October 2026 synthetic values: occupancy matches the
+  // demo's Data sheet (52.4%); air passengers is a new field, so its value appears nowhere else yet.
+  // Scheduled air seats are entered once per airline schedule season, for the months ahead (synthetic).
+  var DEST_INIT = { month: "2026-10", occ: "52.4", occSrc: "Datatur (SECTUR)", pax: "57,940", paxSrc: "OMA",
+                    season: "w2627", seatSrc: "" };
+  var SEASONS = { w2627: ["2026-11", "2026-12", "2027-01", "2027-02", "2027-03"],
+                  s2027: ["2027-04", "2027-05", "2027-06", "2027-07", "2027-08", "2027-09", "2027-10"] };
+  var SEATS_INIT = { "2026-11": "49,500", "2026-12": "61,800", "2027-01": "58,400", "2027-02": "63,100", "2027-03": "64,700" };
+
   var T = {
     es: {
       notice: "<b>Datos sintéticos para demostración.</b> Los formularios de esta página no guardan nada.",
@@ -150,6 +161,10 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       staffP: "Cada solicitud de un grupo, desde que llega hasta que se gana o se pierde.",
       staffL: ["Organización, fechas y tamaño", "Fuente, estado y motivo si se perdió"],
       staffBtn: "Registrar oportunidad",
+      destWho: "Equipo del CVB", destH: "Datos del destino",
+      destP: "Pocas cifras de todo el destino, tomadas de fuentes oficiales.",
+      destL: ["Cada mes: ocupación hotelera y pasajeros aéreos", "Una vez por temporada: asientos aéreos programados"],
+      destBtn: "Capturar datos del destino",
       resWho: "Resultados", resH: "Tablero e informe del mes",
       resP: "Entregados en los primeros 3 días hábiles del mes, en español e inglés.",
       resL: ["Desempeño contra el año pasado", "Prospectos prioritarios", "Tres acciones para el mes"],
@@ -181,6 +196,22 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       doneStaffH: "Oportunidad registrada",
       doneStaff: function (v) { return v.id + " · " + v.org + ". Demostración: no se guardó nada."; },
       anotherLead: "Registrar otra",
+      // destination data form
+      dFormH: "Datos del destino",
+      dFormS: "Cifras de todo el destino que el equipo del CVB toma de fuentes oficiales. Si la cifra oficial del mes aún no sale, capture la más reciente y anote su mes en la fuente.",
+      monthlyLegend: "Cada mes", seasonLegend: "Una vez por temporada",
+      occ: "Ocupación hotelera del destino (%)", occHelp: "Datatur publica la ocupación mensual de Ixtapa-Zihuatanejo.",
+      pax: "Pasajeros aéreos, aeropuerto de Zihuatanejo", paxHelp: "Total del mes, llegadas más salidas, del reporte mensual de tráfico de OMA.",
+      src: "Fuente",
+      season: "Temporada de vuelos", seasons: { w2627: "Invierno 2026-27 (noviembre a marzo)", s2027: "Verano 2027 (abril a octubre)" },
+      seatsHelp: "Asientos programados de llegada por mes, del programa de vuelos de la temporada. Se capturan una vez y se corrigen si cambia el programa.",
+      seatsCol: "Asientos de llegada", monthCol: "Mes", seatSrc: "Fuente del programa de vuelos", seatSrcPh: "Por ejemplo: aerolíneas o aeropuerto",
+      submitDest: "Guardar datos",
+      destNote: "Al guardar, las cifras llegan a la pestaña PublicData de la hoja de datos del destino.",
+      doneDestH: "Datos recibidos",
+      doneDest: function (v) { return v.month + ": ocupación " + v.occ + "%, " + v.pax + " pasajeros aéreos. Asientos programados: " + v.season + ". Demostración: no se guardó nada."; },
+      anotherDest: "Capturar otro mes",
+      errPct: "Escriba un porcentaje entre 0 y 100, con un decimal como máximo.",
       errRequired: "Falta este dato.", errNumber: "Escriba un número entero de 0 o más.", errEnd: "Debe ser igual o posterior al primer día.",
       errFix: "Revise los campos marcados.",
       lists: {
@@ -195,7 +226,7 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       },
       monthName: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
       foot1: "Prototipo con datos sintéticos. Hoteles, grupos y cifras inventados.",
-      foot2: "En operación, el reporte de hoteles es un formulario de Google y el registro de oportunidades vive en la hoja de datos del destino."
+      foot2: "En operación, el reporte de hoteles es un formulario de Google; las oportunidades y los datos del destino se guardan en la hoja de datos del destino."
     },
     en: {
       notice: "<b>Synthetic data for demonstration.</b> The forms on this page save nothing.",
@@ -213,6 +244,10 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       staffP: "Every group request, from arrival until it is won or lost.",
       staffL: ["Organization, dates and size", "Source, status and reason if lost"],
       staffBtn: "Log a lead",
+      destWho: "CVB staff", destH: "Destination data entry",
+      destP: "A few destination-wide figures, taken from official sources.",
+      destL: ["Every month: hotel occupancy and air passengers", "Once per season: scheduled air seats"],
+      destBtn: "Enter destination data",
       resWho: "Results", resH: "This month's dashboard and brief",
       resP: "Delivered within the first 3 business days of the month, in Spanish and English.",
       resL: ["Performance against last year", "Priority prospects", "Three actions for the month"],
@@ -242,12 +277,27 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       doneStaffH: "Lead saved",
       doneStaff: function (v) { return v.id + " · " + v.org + ". Demonstration: nothing was saved."; },
       anotherLead: "Log another",
+      dFormH: "Destination data entry",
+      dFormS: "Destination-wide figures that CVB staff take from official sources. If the official figure for the month is not out yet, enter the latest one and note its month in the source.",
+      monthlyLegend: "Every month", seasonLegend: "Once per season",
+      occ: "Destination hotel occupancy (%)", occHelp: "Datatur publishes monthly occupancy for Ixtapa-Zihuatanejo.",
+      pax: "Air passengers, Zihuatanejo airport", paxHelp: "Month total, arrivals plus departures, from OMA's monthly traffic report.",
+      src: "Source",
+      season: "Flight schedule season", seasons: { w2627: "Winter 2026-27 (November to March)", s2027: "Summer 2027 (April to October)" },
+      seatsHelp: "Scheduled arrival seats by month, from the season's flight schedule. Entered once and corrected if the schedule changes.",
+      seatsCol: "Arrival seats", monthCol: "Month", seatSrc: "Flight schedule source", seatSrcPh: "For example: airlines or airport",
+      submitDest: "Save data",
+      destNote: "When saved, the figures go to the PublicData tab of the destination's data sheet.",
+      doneDestH: "Data received",
+      doneDest: function (v) { return v.month + ": occupancy " + v.occ + "%, " + v.pax + " air passengers. Scheduled seats: " + v.season + ". Demonstration: nothing was saved."; },
+      anotherDest: "Enter another month",
+      errPct: "Enter a percentage from 0 to 100, with at most one decimal.",
       errRequired: "This is required.", errNumber: "Enter a whole number, 0 or more.", errEnd: "Must be on or after the first day.",
       errFix: "Check the marked fields.",
       lists: { "RFP (Cvent)": "Cvent RFP", "Other Mexico": "Rest of Mexico", "USA": "United States" },
       monthName: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       foot1: "Prototype with synthetic data. Hotels, groups and figures are invented.",
-      foot2: "In operation, the hotel report is a Google Form and leads are logged in the destination's data sheet."
+      foot2: "In operation, the hotel report is a Google Form; leads and destination data are kept in the destination's data sheet."
     }
   };
 
@@ -255,8 +305,10 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
   function monthLabel(L, ym) { var p = ym.split("-"); return L.monthName[+p[1] - 1] + " " + p[0]; }
   function label(L, v) { return (L.lists && L.lists[v]) || v; }
   function isCount(v) { return /^\d+$/.test(String(v).trim()); }
+  function isCountC(v) { return /^\d{1,3}(,\d{3})*$|^\d+$/.test(String(v).trim()); }  // whole number, commas allowed
+  function isPct(v) { var t = String(v).trim(); return /^\d{1,3}(\.\d)?$/.test(t) && +t <= 100; }
   function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
-  var VIEWS = ["inicio", "hoteles", "equipo"];
+  var VIEWS = ["inicio", "hoteles", "equipo", "destino"];
   function viewFromHash() { var v = location.hash.slice(1); return VIEWS.indexOf(v) >= 0 ? v : "inicio"; }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
 
@@ -292,6 +344,7 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
       h("div", { className: "cards" },
         card("", L.hotelWho, L.hotelH, L.hotelP, L.hotelL, h("a", { className: "btn", href: "#hoteles" }, L.hotelBtn)),
         card("", L.staffWho, L.staffH, L.staffP, L.staffL, h("a", { className: "btn", href: "#equipo" }, L.staffBtn)),
+        card("", L.destWho, L.destH, L.destP, L.destL, h("a", { className: "btn", href: "#destino" }, L.destBtn)),
         card("results", L.resWho, L.resH, L.resP, L.resL,
           h("a", ON_DEMO_SITE ? { className: "btn", href: DEMO_URL + "#tablero-" + props.lang }
                               : { className: "btn", href: DEMO_URL + "#tablero-" + props.lang, target: "_blank", rel: "noopener" }, L.resBtn))));
@@ -409,6 +462,78 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
         h("button", { type: "button", className: "btn ghost", onClick: function () { setV(init); setErrs({}); } }, L.reset)));
   }
 
+  function DestForm(props) {
+    var L = props.L;
+    var _v = useState(DEST_INIT), v = _v[0], setV = _v[1];
+    var _s = useState(SEATS_INIT), seats = _s[0], setSeats = _s[1];
+    var _e = useState({}), errs = _e[0], setErrs = _e[1];
+    var _d = useState(null), done = _d[0], setDone = _d[1];
+    function set(k) { return function (x) { var n = Object.assign({}, v); n[k] = x; setV(n); }; }
+    function input(k, extra) {
+      return h("input", Object.assign({ id: "d-" + k, value: v[k], "aria-invalid": errs[k] ? "true" : "false",
+        onChange: function (e) { set(k)(e.target.value); } }, extra || {}));
+    }
+    var months = SEASONS[v.season];
+    function seatNum(m) { var x = String(seats[m] || "").replace(/,/g, ""); return /^\d+$/.test(x) ? +x : 0; }
+    var seatTotal = months.reduce(function (a, m) { return a + seatNum(m); }, 0);
+    function reset() { setV(DEST_INIT); setSeats(SEATS_INIT); setErrs({}); }
+    function submit(e) {
+      e.preventDefault();
+      var x = {};
+      if (!isPct(v.occ)) x.occ = L.errPct;
+      if (!isCountC(v.pax)) x.pax = L.errNumber;
+      ["occSrc", "paxSrc"].forEach(function (k) { if (!String(v[k]).trim()) x[k] = L.errRequired; });
+      months.forEach(function (m) { if (!isCountC(seats[m] || "")) x["s" + m] = L.errNumber; });
+      setErrs(x);
+      if (Object.keys(x).length) return;
+      setDone({ month: monthLabel(L, v.month), occ: String(v.occ).trim(), pax: fmt(String(v.pax).replace(/,/g, "")), season: L.seasons[v.season] });
+      window.scrollTo(0, 0);
+    }
+    if (done) return h("div", { className: "panel" },
+      h("button", { className: "back", onClick: function () { location.hash = "inicio"; } }, L.back),
+      h("div", { className: "done", role: "status" }, h("h3", null, L.doneDestH), h("p", null, L.doneDest(done))),
+      h("button", { className: "btn ghost", onClick: function () { setDone(null); reset(); } }, L.anotherDest));
+    return h("form", { className: "panel", onSubmit: submit, noValidate: true },
+      h("button", { type: "button", className: "back", onClick: function () { location.hash = "inicio"; } }, L.back),
+      h("h2", null, L.dFormH), h("p", { className: "sub" }, L.dFormS),
+      h("fieldset", { style: { marginTop: 0 } },
+        h("legend", null, L.monthlyLegend),
+        h("div", { className: "grid2" },
+          h(Field, { id: "d-month", label: L.month },
+            h("select", { id: "d-month", value: v.month, onChange: function (e) { set("month")(e.target.value); } },
+              MONTHS.map(function (m) { return h("option", { key: m, value: m }, monthLabel(L, m)); }))),
+          h("div", null),
+          h(Field, { id: "d-occ", label: L.occ, error: errs.occ }, input("occ", { inputMode: "decimal" }), h("span", { className: "help" }, L.occHelp)),
+          h(Field, { id: "d-occSrc", label: L.src, error: errs.occSrc }, h("div", { className: "src" }, input("occSrc"))),
+          h(Field, { id: "d-pax", label: L.pax, error: errs.pax }, input("pax", { inputMode: "numeric" }), h("span", { className: "help" }, L.paxHelp)),
+          h(Field, { id: "d-paxSrc", label: L.src, error: errs.paxSrc }, h("div", { className: "src" }, input("paxSrc"))))),
+      h("fieldset", null,
+        h("legend", null, L.seasonLegend),
+        h("div", { className: "grid2" },
+          h(Field, { id: "d-season", label: L.season, full: true },
+            h("select", { id: "d-season", value: v.season, onChange: function (e) { set("season")(e.target.value); setErrs({}); } },
+              Object.keys(SEASONS).map(function (k) { return h("option", { key: k, value: k }, L.seasons[k]); })),
+            h("span", { className: "help" }, L.seatsHelp))),
+        h("div", { className: "tbl-scroll", style: { marginTop: "12px" } },
+          h("table", { className: "rn seats" },
+            h("thead", null, h("tr", null, h("th", null, L.monthCol), h("th", null, L.seatsCol))),
+            h("tbody", null, months.map(function (m) {
+              return h("tr", { key: m }, h("td", null, monthLabel(L, m)),
+                h("td", null, h("input", { id: "d-s" + m, inputMode: "numeric", "aria-label": L.seatsCol + ", " + monthLabel(L, m),
+                  value: seats[m] || "", placeholder: "0", "aria-invalid": errs["s" + m] ? "true" : "false",
+                  onChange: function (e) { var n = Object.assign({}, seats); n[m] = e.target.value; setSeats(n); } })));
+            })),
+            h("tfoot", null, h("tr", null, h("td", null, L.total), h("td", null, fmt(seatTotal)))))),
+        h("div", { className: "field", style: { marginTop: "14px", maxWidth: "420px" } },
+          h("label", { htmlFor: "d-seatSrc" }, L.seatSrc, h("span", { className: "opt" }, " " + L.optional)),
+          h("div", { className: "src" }, input("seatSrc", { placeholder: L.seatSrcPh })))),
+      Object.keys(errs).length ? h("p", { className: "err-text", role: "alert" }, L.errFix) : null,
+      h("div", { className: "actions" },
+        h("button", { type: "submit", className: "btn" }, L.submitDest),
+        h("button", { type: "button", className: "btn ghost", onClick: reset }, L.reset),
+        h("span", { className: "help" }, L.destNote)));
+  }
+
   function App() {
     var _l = useState(store("portal-lang") === "en" ? "en" : "es"), lang = _l[0], setLang = _l[1];
     var _w = useState(viewFromHash()), view = _w[0], setView = _w[1];
@@ -420,7 +545,8 @@ footer .wrap { border-top: 1px solid var(--line); padding-top: 18px; display: gr
     useEffect(function () { document.documentElement.lang = lang; store("portal-lang", lang); }, [lang]);
     var L = T[lang];
     if (lang === "en") L = Object.assign({}, L, { lists: Object.assign({}, L.lists) });
-    var body = view === "hoteles" ? h(HotelForm, { L: L, key: "h" + lang }) : view === "equipo" ? h(StaffForm, { L: L, key: "s" + lang }) : h(Home, { L: L, lang: lang });
+    var body = view === "hoteles" ? h(HotelForm, { L: L, key: "h" + lang }) : view === "equipo" ? h(StaffForm, { L: L, key: "s" + lang })
+             : view === "destino" ? h(DestForm, { L: L, key: "d" + lang }) : h(Home, { L: L, lang: lang });
     return h(React.Fragment, null,
       h("div", { className: "notice", dangerouslySetInnerHTML: { __html: L.notice } }),
       h("header", { className: "hero" },

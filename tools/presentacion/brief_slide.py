@@ -1,5 +1,6 @@
-"""One-slide (16:9) visual version of run #10's verified Spanish brief. Draft; not part of the demo site.
-Every number on the slide must appear in run #10's brief_es.md; the script stops otherwise."""
+"""One-slide (16:9) visual version of run #10's verified brief ("Vista Resumen" / "Summary View"),
+Spanish or English (LANG_VIEW=es|en). Every number on the slide must appear in run #10's brief in the same
+language (brief_es.md or brief_en.md, passed as BRIEF); the script stops otherwise."""
 import os
 import re
 from html import escape as esc
@@ -9,48 +10,97 @@ BRIEF = Path(os.environ["BRIEF"]).read_text()  # the run's brief_es.md, from the
 UP, DOWN = "#1b7a4a", "#b4441c"
 
 # ------------------------------------------------------------------ content (condensed from run #10)
-headline = "Perdimos terreno en un mes en que el mercado ganó"
-market = [  # label, value, up?, good?
-    ("Noches de grupo", "4.8%", False, False),
-    ("Ocupación hotelera", "4.9 pts", True, True),
-    ("Asientos aéreos", "2.6%", False, False),
-    ("Oportunidades nuevas", "50.0%", True, True),
-]
-findings = [
-    dict(big="−28.9%", title="Las asociaciones explican la caída",
-         bars=[("oct 2025", 2698), ("oct 2026", 1919)], unit="noches de grupo", tone="down"),
-    dict(big="8,913", title="El acceso aéreo nos cuesta más que el precio",
-         bars=[("Acceso aéreo", 8913), ("Precio", 6640)], unit="noches estimadas perdidas, 12 meses", tone="gold"),
-    dict(big="10", title="Oportunidades con más de 90 días abiertas",
-         text="La más urgente: <b>Grupo Financiero Cumbres</b>, 163 días abierta y evento el 18 de noviembre.", tone="teal"),
-]
-actions = [
-    dict(who="Ventas", when="6 nov", what="Cerrar Grupo Financiero Cumbres",
-         stake=[("657", "Grupo Financiero Cumbres")],
-         note="Coincide con Industrias Olmo (ganado): suman 444 habitaciones pico."),
-    dict(who="Hoteles socios", when="30 nov", what="Confirmar cupo en septiembre de 2027",
-         stake=[("1,458", "Corporativo Cedro"), ("872", "Seguros Altavista"), ("662", "Grupo Cumbres")],
-         note="Coinciden: suman 1,035 habitaciones pico la noche más cargada."),
-    dict(who="Ventas", when="30 nov", what="Presentar el destino",
-         stake=[("912", "Laboratorios Sauce"), ("381", "Seguros Mezquite")],
-         note="Meses de necesidad sin grupos ganados."),
-]
-watch = [
-    "<b>Diciembre de 2026</b>: 0 oportunidades abiertas.",
-    "<b>Colegio Encino</b> (3,764 noches est.): demasiado grande; cerrar o liberar.",
-]
-data_notes = [
-    "<b>Hotel Cerro Verde</b> no envió octubre: pedírselo.",
-    "<b>L-0119</b> abierta con fecha pasada: corregir.",
-]
+LANG = os.environ.get("LANG_VIEW", "es")
+assert LANG in ("es", "en"), LANG
+if LANG == "es":
+    headline = "Perdimos terreno en un mes en que el mercado ganó"
+    market = [  # label, value, up?, good?
+        ("Noches de grupo", "4.8%", False, False),
+        ("Ocupación hotelera", "4.9 pts", True, True),
+        ("Asientos aéreos", "2.6%", False, False),
+        ("Oportunidades nuevas", "50.0%", True, True),
+    ]
+    findings = [
+        dict(big="−28.9%", title="Las asociaciones explican la caída",
+             bars=[("oct 2025", 2698), ("oct 2026", 1919)], unit="noches de grupo", tone="down"),
+        dict(big="8,913", title="El acceso aéreo nos cuesta más que el precio",
+             bars=[("Acceso aéreo", 8913), ("Precio", 6640)], unit="noches estimadas perdidas, 12 meses", tone="gold"),
+        dict(big="10", title="Oportunidades con más de 90 días abiertas",
+             text="La más urgente: <b>Grupo Financiero Cumbres</b>, 163 días abierta y evento el 18 de noviembre.", tone="teal"),
+    ]
+    actions = [
+        dict(who="Ventas", when="6 nov", what="Cerrar Grupo Financiero Cumbres",
+             stake=[("657", "Grupo Financiero Cumbres")],
+             note="Coincide con Industrias Olmo (ganado): suman 444 habitaciones pico."),
+        dict(who="Hoteles socios", when="30 nov", what="Confirmar cupo en septiembre de 2027",
+             stake=[("1,458", "Corporativo Cedro"), ("872", "Seguros Altavista"), ("662", "Grupo Cumbres")],
+             note="Coinciden: suman 1,035 habitaciones pico la noche más cargada."),
+        dict(who="Ventas", when="30 nov", what="Presentar el destino",
+             stake=[("912", "Laboratorios Sauce"), ("381", "Seguros Mezquite")],
+             note="Meses de necesidad sin grupos ganados."),
+    ]
+    watch = [
+        "<b>Diciembre de 2026</b>: 0 oportunidades abiertas.",
+        "<b>Colegio Encino</b> (3,764 noches est.): demasiado grande; cerrar o liberar.",
+    ]
+    data_notes = [
+        "<b>Hotel Cerro Verde</b> no envió octubre: pedírselo.",
+        "<b>L-0119</b> abierta con fecha pasada: corregir.",
+    ]
+    words = {"10": "Diez"}
+    TX = dict(by="antes del", title="Vista Resumen · Ixtapa-Zihuatanejo (datos sintéticos)", h1="Informe de octubre",
+              meta="Eventos de negocios, octubre de 2026", syn="DATOS SINTÉTICOS", band="Lectura del mes · contra octubre de 2025",
+              s_find="Tres hallazgos", s_act="Tres acciones para noviembre · noches estimadas en juego",
+              watch="Para vigilar", data="Datos", fs="Pantalla completa",
+              foot="Datos sintéticos: hoteles, grupos y cifras inventados. Redactado por IA (Claude) a partir de los resultados de la corrida #10; 71 de 71 cifras verificadas.")
+else:
+    headline = "We lost ground in a month when the market gained"
+    market = [
+        ("Group room nights", "4.8%", False, False),
+        ("Hotel occupancy", "4.9 pts", True, True),
+        ("Air seats", "2.6%", False, False),
+        ("New leads", "50.0%", True, True),
+    ]
+    findings = [
+        dict(big="−28.9%", title="Associations explain the drop",
+             bars=[("Oct 2025", 2698), ("Oct 2026", 1919)], unit="group room nights", tone="down"),
+        dict(big="8,913", title="Air access costs us more than price",
+             bars=[("Air access", 8913), ("Price", 6640)], unit="estimated room nights lost, 12 months", tone="gold"),
+        dict(big="10", title="Leads open more than 90 days",
+             text="The most urgent: <b>Grupo Financiero Cumbres</b>, open 163 days, event on November 18.", tone="teal"),
+    ]
+    actions = [
+        dict(who="Sales", when="Nov 6", what="Close Grupo Financiero Cumbres",
+             stake=[("657", "Grupo Financiero Cumbres")],
+             note="Coincides with Industrias Olmo (won): together 444 peak rooms."),
+        dict(who="Partner hotels", when="Nov 30", what="Confirm space for September 2027",
+             stake=[("1,458", "Corporativo Cedro"), ("872", "Seguros Altavista"), ("662", "Grupo Cumbres")],
+             note="They coincide: 1,035 peak rooms on the busiest night."),
+        dict(who="Sales", when="Nov 30", what="Present the destination",
+             stake=[("912", "Laboratorios Sauce"), ("381", "Seguros Mezquite")],
+             note="Months of need with no groups won."),
+    ]
+    watch = [
+        "<b>December 2026</b>: 0 open leads.",
+        "<b>Colegio Encino</b> (3,764 est. room nights): too large; close or release.",
+    ]
+    data_notes = [
+        "<b>Hotel Cerro Verde</b> did not send October: ask for it.",
+        "<b>L-0119</b> open with a past date: correct it.",
+    ]
+    words = {"10": "Ten"}
+    TX = dict(by="by", title="Summary View · Ixtapa-Zihuatanejo (synthetic data)", h1="October brief",
+              meta="Business events, October 2026", syn="SYNTHETIC DATA", band="Month reading · against October 2025",
+              s_find="Three findings", s_act="Three actions for November · estimated room nights at stake",
+              watch="Watch", data="Data", fs="Full screen",
+              foot="Synthetic data: hotels, groups and figures are invented. Drafted by AI (Claude) from run #10's results; 71 of 71 figures verified.")
 
 # ------------------------------------------------------------------ number check against the brief
 num = re.compile(r"\d[\d,]*(?:\.\d+)?")
-words = {"10": "Diez"}
 src = set(num.findall(BRIEF))
 blob = " ".join([headline] + [m[1] for m in market]
                 + [f["big"] + f["title"] + " ".join(str(v) for _, v in f.get("bars", [])) + f.get("text", "") for f in findings]
-                + [a["what"] + a["note"] + " ".join(s for s, _ in a["stake"]) for a in actions] + watch + data_notes)
+                + [a["what"] + " " + a["when"] + " " + a["note"] + " " + " ".join(s for s, _ in a["stake"]) for a in actions] + watch + data_notes)
 blob = re.sub(r"<[^>]+>|L-0119", " ", blob)
 bad = sorted({n for n in num.findall(blob)
               if n.replace(",", "") not in {s.replace(",", "") for s in src} and not (n in words and words[n] in BRIEF)})
@@ -80,7 +130,7 @@ def finding(i, f):
 def action(i, a):
     stake = "".join(f'<div class="st"><b>{s}</b><span>{esc(n)}</span></div>' for s, n in a["stake"])
     return (f'<div class="card act"><div class="a-top"><span class="a-n">{i}</span><span class="who">{esc(a["who"])}</span>'
-            f'<span class="when">antes del {esc(a["when"])}</span></div><h3>{esc(a["what"])}</h3>'
+            f'<span class="when">{TX["by"]} {esc(a["when"])}</span></div><h3>{esc(a["what"])}</h3>'
             f'<div class="stakes">{stake}</div><p class="a-note">{esc(a["note"])}</p></div>')
 
 
@@ -151,28 +201,28 @@ body.flow .page{height:auto}
 @media (max-width:819px){.row,.bottom{grid-template-columns:1fr}.band{flex-direction:column;align-items:flex-start}.mks{flex-wrap:wrap}.mk{min-width:140px}.page{padding:14px}.mini{flex-direction:column;gap:4px}}
 """
 
-NAV = """<button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs{display:none}</style><script>(function(){function fs(){var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if(e.key==='f'||e.key==='F')fs();if(e.key==='ArrowLeft'||e.key==='PageUp')location.href='tablero.html';});})();</script>"""
+from _nav import NAV  # noqa: E402  (shared full-screen control)
 
 page = f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Informe de octubre · Ixtapa-Zihuatanejo (datos sintéticos)</title>
+<html lang="{LANG}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{TX['title']}</title>
 {"<style>" + FONTS_CSS + "</style>" if SITE else '''<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500&display=swap" rel="stylesheet">'''}
 <style>{CSS}</style></head>
 <body><div class="stage" id="stage"><div class="page">
-<header><h1>Informe de octubre <span>· Ixtapa-Zihuatanejo</span></h1>
-  <div class="meta">Eventos de negocios, octubre de 2026 <span class="syn">DATOS SINTÉTICOS</span></div></header>
-<div class="band"><h2><small>Lectura del mes · contra octubre de 2025</small>{esc(headline)}.</h2>
+<header><h1>{TX['h1']} <span>· Ixtapa-Zihuatanejo</span></h1>
+  <div class="meta">{TX['meta']} <span class="syn">{TX['syn']}</span></div></header>
+<div class="band"><h2><small>{TX['band']}</small>{esc(headline)}.</h2>
   <div class="mks">{''.join(chip(*m) for m in market)}</div></div>
-<p class="sec">Tres hallazgos</p>
+<p class="sec">{TX['s_find']}</p>
 <div class="row">{''.join(finding(i + 1, f) for i, f in enumerate(findings))}</div>
-<p class="sec">Tres acciones para noviembre · noches estimadas en juego</p>
+<p class="sec">{TX['s_act']}</p>
 <div class="row">{''.join(action(i + 1, a) for i, a in enumerate(actions))}</div>
 <div class="bottom">
-  <div class="card mini watch"><h4>Para vigilar</h4><ul>{''.join(f'<li>{x}</li>' for x in watch)}</ul></div>
-  <div class="card mini notes"><h4>Datos</h4><ul>{''.join(f'<li>{x}</li>' for x in data_notes)}</ul></div>
+  <div class="card mini watch"><h4>{TX['watch']}</h4><ul>{''.join(f'<li>{x}</li>' for x in watch)}</ul></div>
+  <div class="card mini notes"><h4>{TX['data']}</h4><ul>{''.join(f'<li>{x}</li>' for x in data_notes)}</ul></div>
 </div>
-<p class="foot">Datos sintéticos: hoteles, grupos y cifras inventados. Redactado por IA (Claude) a partir de los resultados de la corrida #10; 71 de 71 cifras verificadas.</p>
+<p class="foot">{TX['foot']}</p>
 </div></div>
 <script>
 (function(){{var st=document.getElementById('stage');
@@ -181,7 +231,7 @@ document.body.classList.remove('flow');
 var k=Math.min(window.innerWidth/1600,window.innerHeight/900);
 st.style.transform='translate('+((window.innerWidth-1600*k)/2)+'px,'+((window.innerHeight-900*k)/2)+'px) scale('+k+')';}}
 window.addEventListener('resize',fit);fit();}})();
-</script>{NAV if SITE else ""}</body></html>"""
+</script>{NAV.replace("%%FS%%", TX["fs"]) if SITE else ""}</body></html>"""
 
 Path(os.environ.get("OUT", "informe.html")).write_text(page)
 print("ok", len(page))

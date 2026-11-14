@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Informe de octubre · Ixtapa-Zihuatanejo (datos sintéticos)</title>
+<title>Vista Resumen · Ixtapa-Zihuatanejo (datos sintéticos)</title>
 <style>
 @font-face{font-family:"Outfit";font-weight:400;font-display:swap;src:url("../fonts/outfit-latin-400-normal.woff2") format("woff2")}
 @font-face{font-family:"Outfit";font-weight:500;font-display:swap;src:url("../fonts/outfit-latin-500-normal.woff2") format("woff2")}
@@ -87,4 +87,4 @@ document.body.classList.remove('flow');
 var k=Math.min(window.innerWidth/1600,window.innerHeight/900);
 st.style.transform='translate('+((window.innerWidth-1600*k)/2)+'px,'+((window.innerHeight-900*k)/2)+'px) scale('+k+')';}
 window.addEventListener('resize',fit);fit();})();
-</script><button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs{display:none}</style><script>(function(){function fs(){var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if(e.key==='f'||e.key==='F')fs();if(e.key==='ArrowLeft'||e.key==='PageUp')location.href='tablero.html';});})();</script></body></html>
+</script><button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs,body.embedded #fs{display:none}</style><script>(function(){var emb=false;try{emb=window.self!==window.top;}catch(e){emb=true;}if(emb)document.body.classList.add('embedded');function fs(){if(emb){try{window.parent.postMessage({vista:'fs'},location.origin);}catch(e){}return;}var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if((e.key==='f'||e.key==='F')&&!e.metaKey&&!e.ctrlKey&&!e.altKey)fs();});})();</script></body></html>

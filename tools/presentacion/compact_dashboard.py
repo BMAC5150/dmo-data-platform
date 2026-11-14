@@ -1,4 +1,5 @@
-"""Compressed one-screen dashboard (Spanish), light version for a non-analytical audience.
+"""Compressed one-screen dashboard ("Vista Tablero" / "Dashboard View"), Spanish or English (LANG=es|en),
+light version for a non-analytical audience.
 
 Draft for review: NOT part of the demo site. Every number comes from the locked engine's
 results (engine.run on the repo's synthetic data) except the brief panel, which condenses
@@ -17,8 +18,40 @@ sys.path.insert(0, str(REPO / "src"))
 import engine  # noqa: E402
 from render_site import NAMES, MONTHS_SHORT  # noqa: E402
 
-N = NAMES["es"]
-MS = MONTHS_SHORT["es"]
+LANG = os.environ.get("LANG_VIEW", "es")
+assert LANG in ("es", "en"), LANG
+N = NAMES[LANG]
+MS = MONTHS_SHORT[LANG]
+TX = {
+    "es": dict(t_g="Noches de grupo, octubre", t_y="Noches de grupo en el año", t_o="Ocupación hotelera, octubre",
+               t_l="Oportunidades nuevas, octubre", t_w="Propuestas ganadas, 12 meses", t_h="Hoteles que reportaron",
+               of="de", missing="Falta", all="Todos", rn="noches de grupo", ch_h="Noches de grupo por mes",
+               ch_aria="Noches de grupo por mes, {a} y {b}", ch_foot="Meses de baja ocupación: ahí hacen falta grupos.",
+               won_t="ganada", lost_t="perdida", nights="noches", est=" estimadas", bx_h="Propuestas decididas en octubre",
+               bx_won="ganada", bx_lost="perdidas", bx_foot="Ganamos {w} noches y perdimos unas {l}.",
+               pp_h="Prospectos prioritarios", pp_date="Fecha del evento", pp_big="Los más grandes",
+               lz_t="noches estimadas", lz_h="Por qué perdemos", lz_r="noches perdidas en 12 meses", rv_h="Quién nos gana",
+               br_h="Informe de octubre", br_what="Qué pasó", br_todo="Qué hacer",
+               br_foot="Redactado por IA con los resultados del mes. Cifras verificadas.",
+               title="Vista Tablero · Ixtapa-Zihuatanejo (datos sintéticos)", h1="Eventos de negocios",
+               month="Octubre de 2026", syn="DATOS SINTÉTICOS",
+               note="Datos sintéticos para demostración: hoteles, grupos y cifras inventados. Noches de grupo: mismos {c} hoteles en ambos años. Noches perdidas y de prospectos: estimadas.",
+               fs="Pantalla completa"),
+    "en": dict(t_g="Group room nights, October", t_y="Group room nights, year to date", t_o="Hotel occupancy, October",
+               t_l="New leads, October", t_w="Bids won, 12 months", t_h="Hotels that reported",
+               of="of", missing="Missing", all="All", rn="group room nights", ch_h="Group room nights by month",
+               ch_aria="Group room nights by month, {a} and {b}", ch_foot="Low-occupancy months: that is where groups are needed.",
+               won_t="won", lost_t="lost", nights="room nights", est=" estimated", bx_h="Bids decided in October",
+               bx_won="won", bx_lost="lost", bx_foot="We won {w} room nights and lost about {l}.",
+               pp_h="Priority prospects", pp_date="Event date", pp_big="The largest",
+               lz_t="estimated room nights", lz_h="Why we lose", lz_r="room nights lost, last 12 months", rv_h="Who beats us",
+               br_h="October brief", br_what="What happened", br_todo="What to do",
+               br_foot="Drafted by AI from the month's results. Figures verified.",
+               title="Dashboard View · Ixtapa-Zihuatanejo (synthetic data)", h1="Business events",
+               month="October 2026", syn="SYNTHETIC DATA",
+               note="Synthetic demonstration data: hotels, groups and figures are invented. Group room nights: the same {c} hotels in both years. Lost and prospect room nights: estimated.",
+               fs="Full screen"),
+}[LANG]
 R = engine.run(REPO / "data/Data (SINTETICO).xlsx", REPO / "data/Hotel responses (SINTETICO).xlsx", REPO / "data/imports")
 S, t, tot, ins = R["S"], R["trend"], R["tot"], R["insights"]
 rm = S["report_month"]
@@ -45,13 +78,13 @@ n_hotels, n_comp = len(R["hotels"]), t["comparable_hotels"]
 missing = t["excluded_hotels"]
 vs = f"vs {ly.year}"
 tiles = [
-    ("Noches de grupo, octubre", n0(g["value"]), f'{delta(g["change"], "pct")} {vs}'),
-    ("Noches de grupo en el año", n0(y["value"]), f'{delta(y["change"], "pct")} {vs}'),
-    ("Ocupación hotelera, octubre", f'{o["value"]:.1f}%', f'{delta(o["change"], "points")} {vs}'),
-    ("Oportunidades nuevas, octubre", n0(lr["value"]), f'{delta(lr["change"], "pct")} {vs}'),
-    ("Propuestas ganadas, 12 meses", f'{tot["win_rate"] * 100:.0f}%', f'{tot["won"]} de {tot["decided"]}'),
-    ("Hoteles que reportaron", f"{n_comp} de {n_hotels}",
-     f'<span class="d" style="color:{DOWN}">Falta {esc(missing[0].replace("Hotel ", ""))}</span>' if missing else "Todos"),
+    (TX["t_g"], n0(g["value"]), f'{delta(g["change"], "pct")} {vs}'),
+    (TX["t_y"], n0(y["value"]), f'{delta(y["change"], "pct")} {vs}'),
+    (TX["t_o"], f'{o["value"]:.1f}%', f'{delta(o["change"], "points")} {vs}'),
+    (TX["t_l"], n0(lr["value"]), f'{delta(lr["change"], "pct")} {vs}'),
+    (TX["t_w"], f'{tot["win_rate"] * 100:.0f}%', f'{tot["won"]} {TX["of"]} {tot["decided"]}'),
+    (TX["t_h"], f"{n_comp} {TX['of']} {n_hotels}",
+     f'<span class="d" style="color:{DOWN}">{TX["missing"]} {esc(missing[0].replace("Hotel ", ""))}</span>' if missing else TX["all"]),
 ]
 kpi_html = "".join(f'<div class="card kpi"><span class="k-l">{esc(a)}</span><b class="k-v">{b}</b><span class="k-s">{c}</span></div>'
                    for a, b, c in tiles)
@@ -75,7 +108,7 @@ for i in range(12):
         h = (base - top) * v / vmax
         x = x0 + j * (bw + 2)
         col = PALE if yr == ly.year else (GOLD if p == rm else TEAL)
-        parts.append(f'<g class="bar"><title>{MS[i]} {yr}: {n0(v)} noches de grupo</title>'
+        parts.append(f'<g class="bar"><title>{MS[i]} {yr}: {n0(v)} {TX["rn"]}</title>'
                      f'<path d="M{x:.1f},{base} v{-(h - 3):.1f} q0,-3 3,-3 h{bw - 6:.1f} q3,0 3,3 v{h - 3:.1f} z" fill="{col}"/>'
                      f'<rect x="{x - 1:.1f}" y="{top}" width="{bw + 2:.1f}" height="{base - top}" fill="transparent"/></g>')
     cx = x0 + bw + 1
@@ -89,13 +122,13 @@ v_now = val[p_now]
 x_now = 10 + (p_now.month - 1) * gw + 3 + bw + 2 + bw / 2
 y_now = base - (base - top) * v_now / vmax
 parts.append(f'<text x="{x_now:.1f}" y="{y_now - 6:.1f}" text-anchor="middle" class="vl">{n0(v_now)}</text>')
-chart_svg = (f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Noches de grupo por mes, {ly.year} y {rm.year}">'
+chart_svg = (f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{TX['ch_aria'].format(a=ly.year, b=rm.year)}">'
              f'<line x1="6" x2="{W}" y1="{base}" y2="{base}" class="base"/>{"".join(parts)}</svg>')
 chart_html = f"""<div class="card">
-  <div class="hd"><h2>Noches de grupo por mes</h2>
+  <div class="hd"><h2>{TX['ch_h']}</h2>
     <span class="lg"><i style="background:{TEAL}"></i>{rm.year}<i style="background:{PALE}"></i>{ly.year}</span></div>
   {chart_svg}
-  <p class="foot"><span class="chip-need">M</span> Meses de baja ocupación: ahí hacen falta grupos.</p>
+  <p class="foot"><span class="chip-need">{MS[4][0].upper()}</span> {TX['ch_foot']}</p>
 </div>"""
 
 # ------------------------------------------------------------------ October decisions: one bar per bid
@@ -106,18 +139,18 @@ dec["RN"] = dec.apply(lambda r: int(r["Actual room nights"]) if r.Status == "Won
 dec = dec.sort_values(["Status", "RN"], ascending=[False, False])  # won first, then biggest losses
 mx = dec.RN.max()
 rows = "".join(
-    f'<div class="bid" title="{esc(r.Organizer)}: {"ganada" if r.Status == "Won" else "perdida"}, {n0(r.RN)} noches'
-    f'{"" if r.Status == "Won" else " estimadas"}"><span class="ic {"w" if r.Status == "Won" else "l"}">{"✓" if r.Status == "Won" else "✕"}</span>'
+    f'<div class="bid" title="{esc(r.Organizer)}: {TX["won_t"] if r.Status == "Won" else TX["lost_t"]}, {n0(r.RN)} {TX["nights"]}'
+    f'{"" if r.Status == "Won" else TX["est"]}"><span class="ic {"w" if r.Status == "Won" else "l"}">{"✓" if r.Status == "Won" else "✕"}</span>'
     f'<span class="bid-n">{esc(r.Organizer)}</span><span class="bid-t"><i class="{"w" if r.Status == "Won" else "l"}" style="width:{100 * r.RN / mx:.1f}%"></i></span>'
     f'<span class="bid-v">{n0(r.RN)}</span></div>' for _, r in dec.iterrows())
 n_won_m = int((dec.Status == "Won").sum())
 won_rn = int(dec.loc[dec.Status == "Won", "RN"].sum())
 lost_rn = int(dec.loc[dec.Status == "Lost", "RN"].sum())
 box_html = f"""<div class="card">
-  <div class="hd"><h2>Propuestas decididas en octubre</h2>
-    <span class="score"><b class="w">{n_won_m}</b> ganada <b class="l">{len(dec) - n_won_m}</b> perdidas</span></div>
+  <div class="hd"><h2>{TX['bx_h']}</h2>
+    <span class="score"><b class="w">{n_won_m}</b> {TX['bx_won']} <b class="l">{len(dec) - n_won_m}</b> {TX['bx_lost']}</span></div>
   {rows}
-  <p class="foot">Ganamos {n0(won_rn)} noches y perdimos unas {n0(lost_rn)}.</p>
+  <p class="foot">{TX['bx_foot'].format(w=n0(won_rn), l=n0(lost_rn))}</p>
 </div>"""
 
 # ------------------------------------------------------------------ priority prospects by sector x month
@@ -138,13 +171,13 @@ pp = ins["priority_pipeline"]
 top = pp["top_5_by_room_nights"][:3]
 top_html = "".join(
     f'<li><b>{esc(r["Organizer"])}</b><span>{MS[pd.Timestamp(r["Start date"]).month - 1]} {pd.Timestamp(r["Start date"]).year}</span>'
-    f'<em>{n0(r["Est. room nights"])} noches</em></li>' for r in top)
+    f'<em>{n0(r["Est. room nights"])} {TX["nights"]}</em></li>' for r in top)
 lt_html = f"""<div class="card">
-  <div class="hd"><h2>Prospectos prioritarios</h2><span class="big">{pp['leads']}</span></div>
-  <div class="lt-row lt-head"><div class="lt-name">Fecha del evento</div><div class="strip hdr">{strip_hd}</div></div>
+  <div class="hd"><h2>{TX['pp_h']}</h2><span class="big">{pp['leads']}</span></div>
+  <div class="lt-row lt-head"><div class="lt-name">{TX['pp_date']}</div><div class="strip hdr">{strip_hd}</div></div>
   <div class="lt-row lt-yr"><div></div><div class="strip yrs"><span>{months[0].year}</span><span>{months[-1].year}</span></div></div>
   {''.join(lt_rows)}
-  <h3 class="sub">Los más grandes</h3>
+  <h3 class="sub">{TX['pp_big']}</h3>
   <ol class="top">{top_html}</ol>
 </div>"""
 
@@ -157,41 +190,50 @@ rest = sum(r["room_nights_lost"] for r in br[TOPN:])
 items = [(N["loss"].get(r["Loss reason"], r["Loss reason"]), r["room_nights_lost"]) for r in shown] 
 mx = max(v for _, v in items)
 lose_rows = "".join(
-    f'<div class="lz" title="{esc(lbl)}: {n0(v)} noches estimadas"><span class="lz-l">{esc(lbl)}</span>'
+    f'<div class="lz" title="{esc(lbl)}: {n0(v)} {TX["lz_t"]}"><span class="lz-l">{esc(lbl)}</span>'
     f'<span class="lz-t"><i class="{"o" if lbl == "Otros" else ""}" style="width:{100 * v / mx:.1f}%"></i></span><span class="lz-v">{n0(v)}</span></div>'
     for lbl, v in items)
 lt_ = R["lost_to"]
 rivals = "".join(f'<span><b>{esc(r["Lost to"])}</b> {r["Leads lost"]}</span>'
                  for _, r in lt_[lt_["Lost to"] != "Other"].head(3).iterrows())
 lose_html = f"""<div class="card">
-  <div class="hd"><h2>Por qué perdemos</h2><span class="hd-r">noches perdidas en 12 meses</span></div>
+  <div class="hd"><h2>{TX['lz_h']}</h2><span class="hd-r">{TX['lz_r']}</span></div>
   {lose_rows}
-  <h3 class="sub">Quién nos gana</h3>
+  <h3 class="sub">{TX['rv_h']}</h3>
   <div class="rivals">{rivals}</div>
 </div>"""
 
 # ------------------------------------------------------------------ brief (condensed from run #10's verified brief)
 BRIEF_SRC = Path(os.environ["BRIEF"]).read_text()  # the run's brief_es.md, from the archivo branch
-what = [
-    "Las asociaciones cayeron 28.9%.",
-    "El acceso aéreo nos cuesta más noches que el precio.",
-]
-todo = [
-    ("Ventas", "6 nov", "Cerrar Grupo Financiero Cumbres (657 noches)."),
-    ("Hoteles socios", "30 nov", "Confirmar cupo en septiembre de 2027 para Cedro, Altavista y Grupo Cumbres."),
-    ("Ventas", "30 nov", "Presentar el destino a Laboratorios Sauce y Seguros Mezquite."),
-]
+what, todo = {
+    "es": ([
+        "Las asociaciones cayeron 28.9%.",
+        "El acceso aéreo nos cuesta más noches que el precio.",
+    ], [
+        ("Ventas", "6 nov", "Cerrar Grupo Financiero Cumbres (657 noches)."),
+        ("Hoteles socios", "30 nov", "Confirmar cupo en septiembre de 2027 para Cedro, Altavista y Grupo Cumbres."),
+        ("Ventas", "30 nov", "Presentar el destino a Laboratorios Sauce y Seguros Mezquite."),
+    ]),
+    "en": ([
+        "Associations fell 28.9%.",
+        "Air access costs us more room nights than price.",
+    ], [
+        ("Sales", "Nov 6", "Close Grupo Financiero Cumbres (657 room nights)."),
+        ("Partner hotels", "Nov 30", "Confirm September 2027 space for Cedro, Altavista and Grupo Cumbres."),
+        ("Sales", "Nov 30", "Pitch Laboratorios Sauce and Seguros Mezquite."),
+    ]),
+}[LANG]
 num = re.compile(r"\d[\d,]*(?:\.\d+)?")
-src_nums = set(num.findall(BRIEF_SRC))
-check_text = what + [f"{a} {c}" for a, _, c in todo]
-bad = [n for line in check_text for n in num.findall(line) if n not in src_nums]
+src_nums = {x.replace(",", "") for x in num.findall(BRIEF_SRC)}  # commas ignored ("30," in "November 30, 2026")
+check_text = what + [f"{a} {b} {c}" for a, b, c in todo]
+bad = [n for line in check_text for n in num.findall(line) if n.replace(",", "") not in src_nums]
 assert not bad, f"brief panel numbers not in run #10 brief: {bad}"
 todo_html = "".join(f'<li><span class="who">{esc(a)} · {esc(b)}</span>{esc(c)}</li>' for a, b, c in todo)
 brief_html = f"""<div class="card brief">
-  <div class="hd"><h2>Informe de octubre</h2></div>
-  <h3>Qué pasó</h3><ul class="what">{''.join(f'<li>{esc(x)}</li>' for x in what)}</ul>
-  <h3>Qué hacer</h3><ol class="todo">{todo_html}</ol>
-  <p class="foot">Redactado por IA con los resultados del mes. Cifras verificadas.</p>
+  <div class="hd"><h2>{TX['br_h']}</h2></div>
+  <h3>{TX['br_what']}</h3><ul class="what">{''.join(f'<li>{esc(x)}</li>' for x in what)}</ul>
+  <h3>{TX['br_todo']}</h3><ol class="todo">{todo_html}</ol>
+  <p class="foot">{TX['br_foot']}</p>
 </div>"""
 
 # ------------------------------------------------------------------ page
@@ -298,21 +340,21 @@ body.flow .card{overflow:visible}
 @media (max-width:819px){.kpis{grid-template-columns:repeat(2,1fr)}.r2,.r3{grid-template-columns:1fr}.page{padding:14px}.kpis{grid-template-columns:repeat(2,1fr)}.page{padding:14px}.bid{grid-template-columns:22px minmax(110px,1.4fr) 1fr 46px;gap:8px}.lt-row{grid-template-columns:96px minmax(0,2fr)}.lz{grid-template-columns:112px 1fr 48px}}
 """
 
-NAV = """<button id="fs" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button><style>#fs{position:fixed;right:14px;bottom:12px;z-index:9;border:1px solid #dfe6e6;background:#fff;color:#5d7178;border-radius:8px;width:34px;height:34px;font-size:17px;cursor:pointer;opacity:.55}#fs:hover{opacity:1}:fullscreen #fs{display:none}body.flow #fs{display:none}</style><script>(function(){function fs(){var d=document.documentElement;try{if(!document.fullscreenElement)d.requestFullscreen();else document.exitFullscreen();}catch(e){}}document.getElementById('fs').onclick=fs;document.addEventListener('keydown',function(e){if(e.key==='f'||e.key==='F')fs();if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')location.href='informe.html';});})();</script>"""
+from _nav import NAV  # noqa: E402  (shared full-screen control)
 
 page = f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tablero compacto · Ixtapa-Zihuatanejo (datos sintéticos)</title>
+<html lang="{LANG}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{TX['title']}</title>
 {"<style>" + FONTS_CSS + "</style>" if SITE else '''<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500&display=swap" rel="stylesheet">'''}
 <style>{CSS}</style></head>
 <body><div class="stage" id="stage"><div class="page">
-<header><h1>Eventos de negocios <span>· Ixtapa-Zihuatanejo</span></h1>
-  <div class="meta">Octubre de 2026 <span class="syn">DATOS SINTÉTICOS</span></div></header>
+<header><h1>{TX['h1']} <span>· Ixtapa-Zihuatanejo</span></h1>
+  <div class="meta">{TX['month']} <span class="syn">{TX['syn']}</span></div></header>
 <div class="grid kpis">{kpi_html}</div>
 <div class="grid r2">{chart_html}{box_html}</div>
 <div class="grid r3">{lt_html}{lose_html}{brief_html}</div>
-<p class="note">Datos sintéticos para demostración: hoteles, grupos y cifras inventados. Noches de grupo: mismos {n_comp} hoteles en ambos años. Noches perdidas y de prospectos: estimadas.</p>
+<p class="note">{TX['note'].format(c=n_comp)}</p>
 </div></div>
 <script>
 (function(){{var st=document.getElementById('stage');
@@ -321,7 +363,7 @@ document.body.classList.remove('flow');
 var k=Math.min(window.innerWidth/1600,window.innerHeight/900);
 st.style.transform='translate('+((window.innerWidth-1600*k)/2)+'px,'+((window.innerHeight-900*k)/2)+'px) scale('+k+')';}}
 window.addEventListener('resize',fit);fit();}})();
-</script>{NAV if SITE else ""}</body></html>"""
+</script>{NAV.replace("%%FS%%", TX["fs"]) if SITE else ""}</body></html>"""
 
 out = Path(os.environ.get("OUT", "tablero.html"))
 out.write_text(page)
