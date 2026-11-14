@@ -2,7 +2,7 @@ name: Publicar sin correr (demo)
 
 # Republishes the site of an earlier run exactly as it was, plus the partner portal at /portal/ and the two
 # 16:9 views (Vista Tablero / Vista Resumen), shown at the top of the Tablero tab with a button to switch between
-# them in place; nothing else on the page changes.
+# them in place, and the Guía de prospección tab (guia/, real public data for the destination); nothing else on the page changes.
 # Does not run the engine or call the Claude API: the dashboard and the brief stay byte for byte the same.
 
 on:
@@ -53,6 +53,11 @@ jobs:
         run: |
           python3 tools/add_presentation_views.py prev/site
           echo "Más Vista Tablero / Vista Resumen arriba de la pestaña Tablero (ES y EN)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Añadir la Guía de prospección (pestaña nueva)
+        run: |
+          python3 tools/add_targeting_guide.py prev/site
+          echo "Más la pestaña Guía de prospección / Targeting guide (ES y EN)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preparar la página para publicar
         uses: actions/upload-pages-artifact@v5

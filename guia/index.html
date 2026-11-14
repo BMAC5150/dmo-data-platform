@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Guía de prospección · Ixtapa-Zihuatanejo (demo)</title>
+<style>
+@font-face{font-family:"Outfit";font-weight:300;font-display:swap;src:url("../fonts/outfit-latin-300-normal.woff2") format("woff2")}
+@font-face{font-family:"Outfit";font-weight:400;font-display:swap;src:url("../fonts/outfit-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Outfit";font-weight:500;font-display:swap;src:url("../fonts/outfit-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:400;font-display:swap;src:url("../fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:500;font-display:swap;src:url("../fonts/hanken-grotesk-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:600;font-display:swap;src:url("../fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Hanken Grotesk";font-weight:700;font-display:swap;src:url("../fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2")}
+:root{
+  --ocean:#0e2a33; --teal:#00839b; --gold:#c9801a; --mist:#f3f6f5; --white:#fff; --ink:#14262c; --ink2:#34484f; --muted:#5d7178;
+  --line:#dfe6e6; --soft:#edf1f1; --up:#0a7b5c; --down:#b23a2b; --warn:#a15c07; --warn-bg:#fdf3e2; --ok-bg:#e6f3ee; --teal-l:#e0f0f3;
+  --rain:#3e6fa8; --syn:#7d3c98; --syn-l:#f5ecf8;
+  --display:"Outfit","Avenir Next","Segoe UI",sans-serif; --sans:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 15px/1.55 var(--sans);font-feature-settings:"tnum" 1,"lnum" 1}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 28px 48px}
+.embed .wrap{max-width:none;padding:0 0 8px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin:0 0 16px}
+.lead-in{max-width:78ch}
+.lead-in h2{font:400 28px/1.2 var(--display);margin:0 0 8px;color:var(--ocean);letter-spacing:-.015em}
+.lead-in p{color:var(--muted);margin:0;font-size:16px}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#fff}
+.lang button{appearance:none;border:0;background:none;font:600 12.5px var(--sans);color:var(--muted);padding:5px 11px;border-radius:999px;cursor:pointer;letter-spacing:.03em}
+.lang button.on{background:var(--ocean);color:#fff}
+.demo{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;margin:0 0 14px}
+.legend-badges{display:flex;gap:8px 16px;flex-wrap:wrap;margin:0 0 22px;font-size:13px;color:var(--muted);align-items:center}
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap;vertical-align:middle}
+.badge.real{background:var(--teal-l);color:#00677a}
+.badge.est{background:#e6eef8;color:#2d5689;border:1px dashed #7b9cc8}
+.badge.rule{background:var(--warn-bg);color:var(--warn)}
+.badge.syn{background:var(--syn-l);color:var(--syn);border:1px dashed var(--syn)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:22px}
+.kpi{background:var(--white);border-radius:18px;padding:20px 22px;box-shadow:0 1px 0 rgba(14,42,51,.04)}
+.kpi .v{font:300 38px/1 var(--display);color:var(--ocean);letter-spacing:-.02em}
+.kpi .d{font-size:13.5px;color:var(--muted);margin:8px 0 10px}
+section.panel{background:var(--white);border-radius:18px;padding:34px 36px;margin-bottom:22px;box-shadow:0 1px 0 rgba(14,42,51,.04)}
+@media (max-width:920px){section.panel{padding:26px 22px}}
+.ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.ph h2{font:400 24px/1.2 var(--display);margin:0 6px 0 0;color:var(--ocean);letter-spacing:-.01em}
+.pdesc{color:var(--muted);margin:0 0 16px;font-size:14.5px;max-width:90ch}
+.chart-title{font:600 15px var(--sans);margin:22px 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--ink)}
+.chart-box{position:relative}
+.chart-box svg{display:block;width:100%;height:auto;overflow:visible}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.series-legend{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:0 0 6px}
+.series-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.hatch{background:repeating-linear-gradient(135deg,#00839b 0 2px,#cbe8ee 2px 5px)}
+.row12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+.storm div{height:26px;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1}
+.s0{background:var(--soft);color:#8a9ba1}.s1{background:#fbe3dc;color:#9a3b22}.s2{background:#f4b8a6;color:#7a2a15}.s3{background:#e0805f;color:#fff}.s4{background:var(--down);color:#fff}
+.verdict{margin-top:24px;padding-top:18px;border-top:1px solid var(--soft)}
+.verdict .vt{font:700 12px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.tags div{min-height:38px;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.15;padding:3px 2px}
+.t-need{background:#fbe3dc;color:#9a3b22}.t-storm{background:#f2c1b2;color:#6e2410}
+.t-win{background:var(--teal-l);color:#00677a}.t-dry{background:var(--ok-bg);color:var(--up)}
+.t-blk{background:#ebe7f4;color:#4e3c80}.t-full{background:var(--soft);color:#475a60}
+.t-none{background:#f7f9f9}
+.mlab{font-size:11px;color:var(--muted);text-align:center;margin-top:3px}
+.tip{position:absolute;pointer-events:none;background:var(--ocean);color:#fff;font-size:12px;padding:7px 10px;border-radius:8px;white-space:nowrap;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.tip b{display:block;margin-bottom:2px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px}
+.gw{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fff}
+.gw h3{margin:0;font:600 15.5px var(--sans)}
+.gw .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.status{font-size:11.5px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.st-target{background:var(--ok-bg);color:var(--up)}.st-watch{background:var(--soft);color:#475a60}.st-notyet{background:#f8e4e1;color:var(--down)}
+.share{display:flex;align-items:center;gap:10px;margin:6px 0 2px}
+.share .bar{flex:1;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.share .bar span{display:block;height:100%;background:var(--teal);border-radius:4px}
+.share b{font:300 24px/1 var(--display);color:var(--ocean)}
+.of{font-size:12px;color:var(--muted);margin-bottom:8px}
+.kv{font-size:13.5px;color:var(--ink2);margin:3px 0;display:flex;gap:8px}
+.kv .ic{flex:0 0 18px;text-align:center}
+.tierhead{display:flex;align-items:center;gap:12px;margin:22px 0 12px;flex-wrap:wrap}
+.tier{color:#fff;font-weight:600;font-size:12.5px;padding:4px 12px;border-radius:999px;letter-spacing:.02em}
+.tier1{background:var(--up)}.tier2{background:var(--teal)}.tier0{background:var(--down)}
+.tierhead h3{margin:0;font:400 19px var(--display);color:var(--ocean)}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.card-h{border-bottom:1px solid var(--soft);padding:14px 18px 12px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.card-h h4{margin:0;font:500 17px/1.3 var(--display);color:var(--ocean)}
+.card-b{padding:14px 18px 16px;flex:1}
+.seg{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:4px;white-space:nowrap}
+.big{display:flex;gap:18px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.big .n{font:300 30px/1 var(--display);color:var(--teal);letter-spacing:-.02em}
+.big .u{font-size:12.5px;color:var(--muted)}
+.checks{display:grid;gap:7px;margin-bottom:10px}
+.chk{display:flex;gap:9px;font-size:13.5px;line-height:1.38;color:var(--ink)}
+.chk .ic{flex:0 0 22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.ic-room{background:var(--teal-l)}.ic-air{background:#e6eef8}.ic-wx{background:#fbe3dc}.ic-gw{background:var(--soft)}
+.chk.ok .ic-wx{background:var(--ok-bg)}
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin:2px 0 12px}
+.months span{font-size:10px;text-align:center;padding:4px 0;border-radius:4px;background:var(--soft);color:var(--muted)}
+.months span.on{background:#2e9e64;color:#fff;font-weight:700}
+.months span.wet{box-shadow:inset 0 -3px 0 var(--rain)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{font-size:11.5px;padding:2px 9px;border-radius:999px;background:var(--syn-l);color:var(--syn);border:1px dashed #c9a3d4}
+.pitch{font-size:13px;color:var(--up);margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.notyet{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px}
+.ny{border:1px solid #efcfc8;background:#fdf6f4;border-radius:12px;padding:12px 16px}
+.ny h4{margin:0 0 3px;font:600 14.5px var(--sans);color:var(--down)}
+.ny p{margin:0;font-size:13.5px;color:var(--ink2)}
+.cal{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.m{border:1px solid var(--line);border-radius:12px;padding:11px 12px 12px;min-height:116px;background:#fff}
+.m h4{margin:0 0 6px;font:500 15px var(--display);color:var(--ocean);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.m h4 small{font:700 10px var(--sans);padding:2px 7px;border-radius:999px;text-align:right}
+.pill{display:block;border-radius:8px;font-size:12.5px;padding:4px 8px;margin:5px 0;line-height:1.3}
+.pill.p{background:var(--ok-bg);color:var(--up)}
+.pill.h{background:#fff;border:1px solid #a7d8be;color:var(--up)}
+.pill em{font-style:normal;font-weight:700}
+.quiet{font-size:12.5px;color:var(--muted);margin-top:4px}
+ul.app{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr));gap:14px 26px}
+ul.app li{display:flex;gap:12px}
+ul.app svg{flex:0 0 24px;margin-top:1px}
+ul.app h4{margin:0 0 2px;font:600 15px var(--sans)}
+ul.app p{margin:0;font-size:14px;color:var(--muted)}
+table.syn{width:100%;border-collapse:collapse;font-size:14px}
+table.syn th{text-align:left;font-weight:500;font-size:12.5px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:bottom}
+table.syn td{padding:11px 10px;border-bottom:1px solid var(--soft)}
+table.syn td.n{font-weight:600}
+.synwrap{border:1px dashed var(--syn);border-radius:12px;padding:4px 8px;background:#fdfafe;overflow-x:auto}
+footer{color:var(--muted);font-size:12.5px;line-height:1.6}
+footer ul{margin:6px 0 0;padding-left:18px}
+@media (max-width:760px){
+  .wrap{padding:24px 18px 36px}.embed .wrap{padding:0}
+  .lead-in h2{font-size:24px}.cal{grid-template-columns:repeat(2,1fr)}
+  .storm div,.tags div{font-size:0;min-height:14px;height:14px;padding:0;border-radius:3px}
+  .mlab{font-size:9px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="vendor/htm.umd.js"></script>
+<script>
+/* =====================================================================
+   DATA
+   Real: destination file "20261103_Datos Zihuatanejo 2024-2026" (Datatur, AFAC, OAG);
+   CVB "Ixtapa Zihuatanejo Statistical Data 2009-2025" (hotel association origin);
+   destination weather profile (climate normals, supplied 14 Nov 2026).
+   Estimate: May-Oct seats. Expert rule: segments, sizes, booking windows.
+   SYNTHETIC: industries and the track-record table.
+   ===================================================================== */
+const ROOMS = 6800;                 // Datatur room base
+const ROOMS_PER_ATTENDEE = 0.8;     // planning norm (Segment Fit paper)
+const LF = { mid:0.78, lo:0.85, hi:0.70 };  // assumed load factors for the May-Oct seat guesstimate
+const OCC = {   // Datatur monthly occupancy %, 2026 = Jan-Aug
+  2024: [65.72,64.39,67.14,60.8,58.72,60.74,67.47,58.09,44.83,46.88,61.29,71.21],
+  2025: [68.91,65.07,60.95,66.15,65.27,55.46,64.61,63.13,44.15,51.86,64.11,69.05],
+  2026: [68.49,66.15,54.73,57.14,58.14,48.08,57.63,61.6]
+};
+// AFAC commercial arrivals by country of flight origin, 2026 = Jan-Sep
+const CAN = { 2024:[3559,3132,2667,1412,0,0,0,0,0,305,2033,3817], 2025:[5212,4047,3157,1030,0,0,0,0,0,368,3539,4468], 2026:[6310,5061,3869,1448,0,0,0,0,0] };
+const USA = { 2024:[11799,11884,12094,5059,3248,3819,3752,2192,1422,2404,6566,11059], 2025:[11363,10350,9916,4448,3049,3314,3148,2050,1320,2563,5170,10679], 2026:[11279,9771,8267,3823,2831,2864,2943,1449,817] };
+const MEX = { 2024:[17087,16948,20314,15366,16949,18694,21444,19471,14847,17739,17746,22218], 2025:[18541,17462,18785,22669,22444,20814,26694,24283,17960,19897,23541,27593], 2026:[23317,21439,25385,22651,24320,21542,27181,26064,16919] };
+// OAG seats filed 1 Nov 2026 (index 0 = Jan): Nov-Dec 2026, Jan-Apr 2027
+const SEATS_CAN = {10:3666, 11:4983, 0:5295, 1:4896, 2:5202, 3:3816};
+const SEATS_USA = {10:5100, 11:8302, 0:10884, 1:8707, 2:10764, 3:5436};
+const WINTER = [10,11,0,1,2,3];
+const NIGHTS = { // hotel association, Jan-Nov 2025
+  mexico:828012, usa:56546, canada:25276, total:912219, latam:579, europe:1305,
+  michoacan:302747, guanajuato:183519, queretaro:56935, aguascalientes:19653, slp:17085,
+  cdmx:79561, edomex:71864, jalisco:25872, nuevoleon:5788,
+  california:21465, minnesota:4954, illinois:3964, wisconsin:2651, bc:8815, alberta:7955
+};
+// Weather profile (climate normals)
+const RAIN_DAYS = [1,0,0,0,2,13,12,14,16.5,8,1.5,1];          // midpoint of the profile's range
+const RAIN_TXT  = ["1","0","0","0","2","12–14","11–13","13–15","15–18","7–9","1–2","1"];
+const RAIN_MM   = [11,5,8,1,20,198,165,216,330,140,20,8];
+const STORM     = [0,0,0,0,1,2,2,3,4,3,1,0];                   // none, very low, moderate, high, peak
+const DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+/* ---------- derived ---------- */
+const sum = a => a.reduce((s,v)=>s+v,0);
+const avgOcc = Array.from({length:12},(_,i)=>{ const v=[2024,2025,2026].map(y=>OCC[y][i]).filter(x=>x!=null); return sum(v)/v.length; });
+const emptyRooms = avgOcc.map(o => Math.round(ROOMS*(1-o/100)));
+// latest 12 months of international arrivals: Nov-Dec 2025, Jan-Sep 2026, Oct 2025
+const intlArr = m => { const y = (m>=9) ? 2025 : 2026; return CAN[y][m]+USA[y][m]; };
+const seatsIntl = m => SEATS_CAN[m]+SEATS_USA[m];
+const isWinter = m => WINTER.includes(m);
+const r10 = v => Math.round(v/10)*10;
+const estSeats = m => ({ mid:r10(intlArr(m)/LF.mid), lo:r10(intlArr(m)/LF.lo), hi:r10(intlArr(m)/LF.hi) });
+const seatsAny = m => isWinter(m) ? seatsIntl(m) : estSeats(m).mid;
+const seatGap = m => Math.round(100*(seatsIntl(m)/intlArr(m)-1));
+const pctChg = (a,b) => Math.round(100*(b/a-1));
+const canChg = pctChg(sum(CAN[2025].slice(0,9)), sum(CAN[2026]));
+const usaChg = pctChg(sum(USA[2025].slice(0,9)), sum(USA[2026]));
+const share = (n,d) => 100*n/d;
+const SH = {
+  michBajio: share(NIGHTS.michoacan+NIGHTS.guanajuato+NIGHTS.queretaro+NIGHTS.aguascalientes+NIGHTS.slp, NIGHTS.mexico),
+  cdmx: share(NIGHTS.cdmx+NIGHTS.edomex, NIGHTS.mexico),
+  jalNl: share(NIGHTS.jalisco+NIGHTS.nuevoleon, NIGHTS.mexico),
+  wcan: share(NIGHTS.bc+NIGHTS.alberta, NIGHTS.canada),
+  cal: share(NIGHTS.california, NIGHTS.usa),
+  midw: share(NIGHTS.minnesota+NIGHTS.illinois+NIGHTS.wisconsin, NIGHTS.usa),
+  latam: share(NIGHTS.latam, NIGHTS.total),
+  latEu: share(NIGHTS.latam+NIGHTS.europe, NIGHTS.total)
+};
+const weekSeatsCan = m => SEATS_CAN[m]/DAYS[m]*7;
+const weekDomArr = m => MEX[2025][m]/DAYS[m]*7;
+const roomsFor = att => Math.round(att*ROOMS_PER_ATTENDEE);
+const roomPct = (att,m) => Math.round(100*roomsFor(att)/emptyRooms[m]);
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const fk = n => (Math.round(n/100)/10).toFixed(1)+"k";
+const r1 = n => n.toFixed(1);
+const wetShare = Math.round(100*sum(RAIN_MM.slice(5,10))/sum(RAIN_MM));
+
+/* ---------- text ---------- */
+const MON = { en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], es:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"] };
+const MONL = { en:["January","February","March","April","May","June","July","August","September","October","November","December"], es:["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"] };
+const L = (en,es)=>({en,es});
+const cap1 = s => s.charAt(0).toUpperCase()+s.slice(1);
+
+const T = {
+  demo: L("Unlike the rest of this demo, this guide uses real public data for Ixtapa-Zihuatanejo, alongside labelled estimates and synthetic examples. Not an official destination document.",
+          "A diferencia del resto de esta demo, esta guía usa datos públicos reales de Ixtapa-Zihuatanejo, junto con estimaciones y ejemplos sintéticos señalados. No es un documento oficial del destino."),
+  eyebrow: L("Business events · Lead targeting guide","Eventos de negocios · Guía de prospección"),
+  title: L("Business events targeting guide","Guía de prospección de eventos de negocios"),
+  sub: L("Which groups to pursue, from where and when: hotels, flights and weather, month by month.",
+         "Qué grupos buscar, de dónde y cuándo: hoteles, vuelos y clima, mes a mes."),
+  real: L("Real data","Datos reales"), est: L("Estimate","Estimación"), rule: L("Expert rule","Regla experta"), syn: L("Synthetic","Sintético"),
+  realD: L("public statistics","estadísticas públicas"), estD: L("calculated guess","cálculo aproximado"), ruleD: L("professional judgment","criterio profesional"), synLeg: L("invented for the demo","inventado para la demo"),
+  k1: L("hotel rooms","cuartos de hotel"),
+  k2: L("of Mexican hotel nights from Michoacán and the Bajío, mostly by road","de las noches nacionales vienen de Michoacán y el Bajío, casi todo por carretera"),
+  k3: L("Canadian air arrivals, Jan–Sep 2026","llegadas aéreas desde Canadá, ene–sep 2026"),
+  k4: L("September occupancy: the emptiest month, and peak hurricane risk","ocupación en septiembre: el mes más vacío y de mayor riesgo de huracán"),
+  whenT: L("When there's room","Cuándo hay espacio"),
+  whenD: L("Groups fit where empty rooms, flights and dry weather overlap. They rarely line up.","Los grupos encajan donde coinciden cuartos vacíos, vuelos y clima seco. Rara vez coinciden."),
+  c1: L("Empty hotel rooms, average night","Cuartos de hotel vacíos, noche promedio"),
+  c1cap: L("6,800 rooms × (1 − occupancy), 2024–26 average. Weekends run fuller: target midweek.","6,800 cuartos × (1 − ocupación), promedio 2024–26. Los fines de semana se llenan más: buscar entre semana."),
+  c1tip: L("empty rooms a night","cuartos vacíos por noche"), occ: L("average occupancy","ocupación promedio"),
+  c2: L("International air seats a month","Asientos aéreos internacionales al mes"),
+  s1: L("Seats on sale, Nov–Apr (OAG)","Asientos a la venta, nov–abr (OAG)"),
+  s1e: L("Seats, May–Oct (estimate)","Asientos, may–oct (estimación)"),
+  s2: L("Arrivals, latest 12 months (AFAC)","Llegadas, últimos 12 meses (AFAC)"),
+  c2cap: L("Winter labels: seats vs. last winter's arrivals. May–Oct seats are a guesstimate: latest arrivals ÷ an assumed 70–85% load factor. Almost all U.S.; no Canadian flights May–Sep.",
+           "Etiquetas de invierno: asientos vs. llegadas del invierno pasado. Los asientos de may–oct son una estimación: llegadas recientes ÷ un factor de ocupación supuesto de 70–85%. Casi todo EE. UU.; sin vuelos de Canadá may–sep."),
+  seatsT: L("seats","asientos"), arrT: L("arrivals","llegadas"), estT: L("estimate","estimación"), rangeT: L("range","rango"),
+  c3: L("Rain days and hurricane risk","Días de lluvia y riesgo de huracán"),
+  c3cap: L(`June–October brings ${wetShare}% of the year's rain, mostly as late-afternoon storms; mornings stay bright. Hurricane season: 15 May–30 Nov, peaking mid-August to mid-October.`,
+           `De junio a octubre cae el ${wetShare}% de la lluvia del año, sobre todo en tormentas al final de la tarde; las mañanas siguen soleadas. Temporada de huracanes: 15 may–30 nov, con pico de mediados de agosto a mediados de octubre.`),
+  rainT: L("rain days","días de lluvia"), mmT: L("rainfall","precipitación"),
+  stormLv: [L("None","Nulo"),L("Very low","Muy bajo"),L("Moderate","Moderado"),L("High","Alto"),L("Peak","Máximo")],
+  stormRow: L("Hurricane risk","Riesgo de huracán"),
+  verdict: L("Verdict","Veredicto"),
+  tag: { need:L("Domestic need","Necesidad nacional"), storm:L("Need: indoor only","Necesidad: solo bajo techo"), win:L("Int'l window","Ventana internacional"),
+         dry:L("Dry shoulder","Intermedia seca"), blk:L("Needs seat block","Requiere bloqueo de asientos"), full:L("Seats full","Asientos llenos") },
+  gwT: L("Where groups come from","De dónde vienen los grupos"),
+  gwD: L("Share of each country's hotel nights, Jan–Nov 2025. Flight frequencies from route directories, not yet confirmed with airlines.",
+         "Participación en las noches de hotel de cada país, ene–nov 2025. Frecuencias de directorios de rutas, sin confirmar con aerolíneas."),
+  stTarget: L("Target now","Prospectar ya"), stWatch: L("Watch","Observar"), stNot: L("Not yet","Todavía no"),
+  profT: L("Target profiles","Perfiles objetivo"),
+  profD: L("Segments and sizes: expert rules. Room, air and weather checks: real data. Industries: synthetic.","Segmentos y tamaños: reglas expertas. Verificaciones de cuartos, aéreo y clima: datos reales. Industrias: sintéticas."),
+  tier1: L("Tier 1","Nivel 1"), tier1h: L("Pursue now","Prospectar ya"),
+  tier2: L("Tier 2","Nivel 2"), tier2h: L("Build toward","Preparar"),
+  tier0: L("Not yet","Todavía no"), tier0h: L("Wait for conditions to change","Esperar a que cambien las condiciones"),
+  att: L("attendees","asistentes"),
+  roomTxt: L((r,p,m)=>`~${r} peak rooms ≈ ${p}% of ${/^[AEIOU]/.test(m)?'an':'a'} ${m} night's empty rooms`, (r,p,m)=>`~${r} cuartos pico ≈ ${p}% de los cuartos vacíos de una noche de ${m}`),
+  wetKey: L("blue underline = rainy month","subrayado azul = mes lluvioso"),
+  fPitch: L("Pitch","Prospectar"),
+  calT: L("Monthly targeting calendar","Calendario mensual de prospección"),
+  calD: L("When to pitch each Tier 1 segment so its events land in months with room.","Cuándo prospectar cada segmento del Nivel 1 para que sus eventos caigan en meses con espacio."),
+  pitch: L("Pitch","Prospectar"), host: L("Host","Recibir"), forM: L("for","para"),
+  calNone: L("Follow up open proposals","Seguimiento a propuestas"),
+  appT: L("Strategic approaches","Enfoques estratégicos"),
+  synT: L("What 12 months of group data would add","Lo que agregarían 12 meses de datos de grupos"),
+  synD: L("Synthetic example of each profile's track record once hotels report group room nights and the CVB logs every lead.","Ejemplo sintético del historial de cada perfil cuando los hoteles reporten cuartos-noche de grupos y el CVB registre cada prospecto."),
+  thSeg: L("Segment","Segmento"), thGrp: L("Avg. group","Grupo prom."), thPick: L("Room pickup","Uso del bloqueo"), thWin: L("Booking window","Plazo de reserva"),
+  thRate: L("Win rate","Tasa de cierre"), thRn: L("Room nights won, 12 mo","Cuartos-noche ganados, 12 m"), thLoss: L("Top loss reason","Principal causa de pérdida"),
+  mo: L("months","meses"),
+  srcT: L("Sources and method","Fuentes y método"),
+  src: [
+    L("Datatur occupancy (Jan 2024–Aug 2026) and 6,800-room base; AFAC arrivals (Jan 2024–Sep 2026); OAG seats filed 1 Nov 2026: destination data file, 3 Nov 2026. Hotel association guest origin, Jan–Nov 2025: CVB Statistical Data. Climate normals: destination weather profile.",
+      "Ocupación de Datatur (ene 2024–ago 2026) y base de 6,800 cuartos; llegadas AFAC (ene 2024–sep 2026); asientos OAG al 1 nov 2026: archivo de datos del destino, 3 nov 2026. Origen de huéspedes de la asociación de hoteles, ene–nov 2025: Datos Estadísticos del CVB. Normales climáticas: perfil climático del destino."),
+    L("Flight frequencies: route directories, Oct 2026, unconfirmed. Advisories: U.S. State Department (29 May 2026); Government of Canada.",
+      "Frecuencias: directorios de rutas, oct 2026, sin confirmar. Recomendaciones: Departamento de Estado de EE. UU. (29 may 2026); Gobierno de Canadá."),
+    L("Method: peak rooms = 0.8 per attendee; weekly seats = monthly ÷ days × 7; May–Oct seats = latest arrivals ÷ 70–85% load factor (estimate, not airline schedules). No hotel or venue is named; no rate or spending data is used.",
+      "Método: cuartos pico = 0.8 por asistente; asientos semanales = mensuales ÷ días × 7; asientos may–oct = llegadas recientes ÷ factor de ocupación de 70–85% (estimación, no programación de aerolíneas). No se nombra ningún hotel ni recinto; no se usan datos de tarifas ni de gasto.")
+  ]
+};
+
+// Verdict by month (hotels + air + weather)
+const VERDICT = ["blk","blk","win","win","dry","need","none","none","storm","need","full","blk"];
+
+const GATEWAYS = [
+  { name:L("Michoacán and the Bajío","Michoacán y el Bajío"), share:SH.michBajio, of:L("of Mexican nights","de las noches nacionales"), st:"target",
+    access:L("Road · Morelia 3.5–4 h","Carretera · Morelia 3.5–4 h"), flights:L("Morelia (seasonal); Querétaro","Morelia (temporal); Querétaro") },
+  { name:L("Mexico City metro","Zona metropolitana CDMX"), share:SH.cdmx, of:L("of Mexican nights","de las noches nacionales"), st:"target",
+    access:L("Air · the largest route","Aire · la ruta más grande"), flights:L("27,000–35,000 domestic seats/month, all routes","27,000–35,000 asientos nacionales/mes, todas las rutas") },
+  { name:L("Western Canada (B.C., Alberta)","Oeste de Canadá (C. B., Alberta)"), share:SH.wcan, of:L("of Canadian nights","de las noches canadienses"), st:"target",
+    access:L(`Air · Oct–Apr · arrivals +${canChg}%`,`Aire · oct–abr · llegadas +${canChg}%`), flights:L("Calgary 4/wk · Vancouver 2/wk","Calgary 4/sem · Vancouver 2/sem") },
+  { name:L("Jalisco and Nuevo León","Jalisco y Nuevo León"), share:SH.jalNl, of:L("of Mexican nights","de las noches nacionales"), st:"watch",
+    access:L("Air · small demand so far","Aire · demanda aún pequeña"), flights:L("Guadalajara; Monterrey","Guadalajara; Monterrey") },
+  { name:L("California","California"), share:SH.cal, of:L("of U.S. nights","de las noches de EE. UU."), st:"notyet",
+    access:L("Air · Level 4 advisory","Aire · recomendación Nivel 4"), flights:L("Los Angeles 6/wk; San Francisco 1/wk","Los Ángeles 6/sem; San Francisco 1/sem") },
+  { name:L("Upper Midwest (MN, IL, WI)","Medio Oeste alto (MN, IL, WI)"), share:SH.midw, of:L("of U.S. nights","de las noches de EE. UU."), st:"notyet",
+    access:L("Air · Dec–Apr · Level 4","Aire · dic–abr · Nivel 4"), flights:L("Minneapolis 2/wk; Chicago 1/wk","Minneapolis 2/sem; Chicago 1/sem") }
+];
+
+const SEGCOL = { corp:["#E0F2FE","#075985"], inc:["#FDE2E1","#991B1B"], assn:["#FEF3C7","#92400E"], board:["#EDE9FE","#5B21B6"], sci:["#DCFCE7","#166534"] };
+const SEGN = { corp:L("Corporate","Corporativo"), inc:L("Incentive","Incentivo"), assn:L("Association","Asociación"), board:L("Board","Consejo"), sci:L("Scientific","Científico") };
+
+const PROFILES = [
+  { tier:1, short:L("Mexican corporate","Corporativo mexicano"), segs:["corp","inc"],
+    name:L("Mexican corporate meetings and incentives","Reuniones e incentivos corporativos mexicanos"),
+    att:"100–300", max:300, roomM:9,
+    gw:L("Michoacán and the Bajío by coach; Mexico City by air","Michoacán y el Bajío en autobús; CDMX por aire"),
+    air:L("Road-led: 4 in 5 domestic guests arrive without a flight","Por carretera: 4 de cada 5 huéspedes nacionales llegan sin vuelo"),
+    wx:L("May is dry. June and October: afternoon storms, so plan outdoor events for mornings. Skip September for incentives.","Mayo es seco. Junio y octubre: tormentas por la tarde, así que planear lo exterior en la mañana. Evitar septiembre para incentivos."), wxOk:false,
+    months:[4,5,9], ind:[L("Agribusiness","Agroindustria"),L("Auto parts","Autopartes"),L("Pharma distribution","Distribución farmacéutica"),L("Consumer goods","Bienes de consumo")],
+    pitch:L("Feb for May–Jun · Jun for Oct (3–6 months out)","Feb. para may–jun · jun. para oct. (3–6 meses antes)") },
+  { tier:1, short:L("National congresses","Congresos nacionales"), segs:["assn"],
+    name:L("Mexican national association congresses","Congresos de asociaciones nacionales mexicanas"),
+    att:"300–800", max:800, roomM:8,
+    gw:L("Mexico City by air; the Bajío by road","CDMX por aire; el Bajío por carretera"),
+    air:L(()=>`If half fly: ≈${Math.round(100*400/weekDomArr(8))}% of a September week's domestic arrivals`,()=>`Si la mitad vuela: ≈${Math.round(100*400/weekDomArr(8))}% de las llegadas nacionales de una semana de septiembre`),
+    wx:L("Indoor format suits the rainy months. September needs a storm plan and a hurricane clause.","El formato bajo techo funciona en meses lluviosos. Septiembre requiere plan de tormenta y cláusula de huracán."), wxOk:false,
+    months:[5,8,9], ind:[L("Medical specialties","Especialidades médicas"),L("Tourism professionals","Profesionales del turismo"),L("Engineering","Ingeniería"),L("Education","Educación")],
+    pitch:L("At their own congresses, 12–24 months out. Already winning: AFEET 2026, Tour Guides Congress 2026","En sus propios congresos, 12–24 meses antes. Ya se gana: AFEET 2026, Congreso de Guías de Turistas 2026") },
+  { tier:1, short:L("W. Canada incentives","Incentivos Canadá oeste"), segs:["inc"],
+    name:L("Western Canadian incentives","Incentivos del oeste de Canadá"),
+    att:"50–250", max:250, roomM:2,
+    gw:L("Calgary and Vancouver, nonstop","Calgary y Vancouver, sin escalas"),
+    air:L(()=>`≈${Math.round(100*250/weekSeatsCan(2))}% of a March week's Canadian seats: book a seat block`,()=>`≈${Math.round(100*250/weekSeatsCan(2))}% de los asientos desde Canadá de una semana de marzo: bloquear asientos`),
+    wx:L("Dry season: no rain, no storm risk. The best outdoor months.","Temporada seca: sin lluvia ni riesgo de tormenta. Los mejores meses al aire libre."), wxOk:true,
+    months:[2,3], ind:[L("Energy","Energía"),L("Insurance","Seguros"),L("Farm equipment","Maquinaria agrícola"),L("Direct sales","Venta directa")],
+    pitch:L("Jun–Sep for next Mar–Apr (6–12 months out). Dec–Feb only with a seat block","Jun–sep para mar–abr siguientes (6–12 meses antes). Dic–feb solo con bloqueo de asientos") },
+  { tier:1, short:L("Boards and retreats","Consejos y retiros"), segs:["board"],
+    name:L("Executive boards and retreats","Consejos directivos y retiros ejecutivos"),
+    att:"20–60", max:60, roomM:4,
+    gw:L("Mexico City by air; Calgary and Vancouver in winter","CDMX por aire; Calgary y Vancouver en invierno"),
+    air:L(()=>`≈${Math.round(100*60/weekSeatsCan(2))}% of a March week's Canadian seats: fits regular flights`,()=>`≈${Math.round(100*60/weekSeatsCan(2))}% de los asientos desde Canadá de una semana de marzo: caben en vuelos regulares`),
+    wx:L("All four months are dry season.","Los cuatro meses son de temporada seca."), wxOk:true,
+    months:[2,3,4,10], ind:[L("Financial services","Servicios financieros"),L("Family businesses","Empresas familiares"),L("Technology","Tecnología")],
+    pitch:L("3–6 months out: Nov–Dec for Mar–Apr · Jan for May · Jul for Nov","3–6 meses antes: nov–dic para mar–abr · ene. para may. · jul. para nov.") },
+  { tier:2, short:null, segs:["sci"],
+    name:L("Small scientific and academic meetings","Reuniones científicas y académicas pequeñas"),
+    att:"100–300", max:300, roomM:4,
+    gw:L("Mexico by road and air; Canada in Mar–Apr","México por carretera y aire; Canadá en mar–abr"),
+    air:L(()=>`300 Canadians ≈ ${Math.round(100*300/weekSeatsCan(2))}% of a March week's seats`,()=>`300 canadienses ≈ ${Math.round(100*300/weekSeatsCan(2))}% de los asientos de una semana de marzo`),
+    wx:L("Dry months only; mornings-in-session formats could stretch into June.","Solo meses secos; los formatos con sesiones matutinas podrían extenderse a junio."), wxOk:true,
+    months:[2,3,4], ind:[L("Marine science","Ciencias marinas"),L("Public health","Salud pública"),L("Agronomy","Agronomía")],
+    pitch:L("12–18 months out. Why Tier 2: no local university or hospital base to champion bids","12–18 meses antes. Por qué Nivel 2: no hay base universitaria u hospitalaria local que impulse candidaturas") },
+  { tier:2, short:null, segs:["assn","board"],
+    name:L("Latin American association boards","Consejos de asociaciones latinoamericanas"),
+    att:"20–40", max:40, roomM:4,
+    gw:L("Latin America via Mexico City","Latinoamérica vía CDMX"),
+    air:L("No direct flights: connect through Mexico City","Sin vuelos directos: conexión vía CDMX"),
+    wx:L("May and November are dry; avoid the August–October storm peak.","Mayo y noviembre son secos; evitar el pico de tormentas de agosto a octubre."), wxOk:true,
+    months:[4,10], ind:[L("Tourism federations","Federaciones de turismo"),L("Medical federations","Federaciones médicas")],
+    pitch:L(()=>`6–12 months out. Why Tier 2: Latin America is ${SH.latam.toFixed(2)}% of hotel nights`,()=>`6–12 meses antes. Por qué Nivel 2: Latinoamérica es el ${SH.latam.toFixed(2)}% de las noches de hotel`) }
+];
+
+const NOTYET = [
+  { t:L("U.S. corporate and incentive groups","Grupos corporativos y de incentivo de EE. UU."),
+    d:L(`Guerrero at Level 4, Do Not Travel; U.S. arrivals −${Math.abs(usaChg)}% in 2026.`,`Guerrero en Nivel 4, No viajar; llegadas de EE. UU. −${Math.abs(usaChg)}% en 2026.`) },
+  { t:L("International association congresses","Congresos de asociaciones internacionales"),
+    d:L(`Latin America and Europe: ${SH.latEu.toFixed(1)}% of hotel nights; two flights to arrive.`,`Latinoamérica y Europa: ${SH.latEu.toFixed(1)}% de las noches; dos vuelos para llegar.`) },
+  { t:L("Events above 800 attendees","Eventos de más de 800 asistentes"),
+    d:L("Beyond today's realistic room and space ceiling.","Por encima del límite realista actual de cuartos y espacio.") }
+];
+
+const CAL = {
+  0:[["p",3,L("May","mayo")]],
+  1:[["p",0,L("May–Jun","may–jun")]],
+  2:[["h",2],["h",3]],
+  3:[["h",2],["h",3]],
+  4:[["h",0],["h",3]],
+  5:[["p",0,L("October","octubre")],["p",2,L("next Mar–Apr","mar–abr sig.")],["h",0],["h",1]],
+  6:[["p",3,L("November","noviembre")]],
+  7:[["p",1,L("1–2 years out","1–2 años")]],
+  8:[["p",2,L("next Mar–Apr","mar–abr sig.")],["p",1,L("1–2 years out","1–2 años")],["h",1]],
+  9:[["p",1,L("1–2 years out","1–2 años")],["h",0],["h",1]],
+  10:[["p",3,L("March","marzo")],["h",3]],
+  11:[["p",3,L("April","abril")]]
+};
+
+const APPROACHES = [
+  { h:L("Fill the low months from the drive market","Llenar los meses bajos con el mercado carretero"),
+    p:L(`June and October average ${fmt(emptyRooms[5])} and ${fmt(emptyRooms[9])} empty rooms a night; coach groups from Michoacán and the Bajío, midweek, indoor-led.`,
+        `Junio y octubre promedian ${fmt(emptyRooms[5])} y ${fmt(emptyRooms[9])} cuartos vacíos por noche; grupos en autobús desde Michoacán y el Bajío, entre semana, con programa bajo techo.`) },
+  { h:L("Sell September only to indoor events","Vender septiembre solo a eventos bajo techo"),
+    p:L(`The emptiest month (${fmt(emptyRooms[8])} rooms a night) is also the wettest and peak hurricane risk: congresses yes, incentives no, always with backup dates.`,
+        `El mes más vacío (${fmt(emptyRooms[8])} cuartos por noche) es también el más lluvioso y de mayor riesgo de huracán: congresos sí, incentivos no, siempre con fechas alternas.`) },
+  { h:L("Canada first, in March and April","Canadá primero, en marzo y abril"),
+    p:L(`Seats run ${seatGap(2)}% and ${seatGap(3)}% above last winter's arrivals, hotels have room and it is dry. December–February only with a seat block.`,
+        `Los asientos superan en ${seatGap(2)}% y ${seatGap(3)}% las llegadas del invierno pasado, hay cuartos y es temporada seca. Dic–feb solo con bloqueo de asientos.`) },
+  { h:L("Use May as the dry shoulder","Usar mayo como temporada intermedia seca"),
+    p:L(`May averages ${fmt(emptyRooms[4])} empty rooms a night with two rain days: the best domestic month for outdoor incentives.`,
+        `Mayo promedia ${fmt(emptyRooms[4])} cuartos vacíos por noche con dos días de lluvia: el mejor mes nacional para incentivos al aire libre.`) }
+];
+
+const SYN = [ // invented
+  { p:0, grp:170, pick:88, win:4, rate:34, rn:3120, loss:L("Dates","Fechas") },
+  { p:1, grp:520, pick:81, win:16, rate:22, rn:4480, loss:L("Meeting space","Espacio para reuniones") },
+  { p:2, grp:140, pick:92, win:9, rate:18, rn:1260, loss:L("Air access","Acceso aéreo") },
+  { p:3, grp:38, pick:95, win:5, rate:41, rn:610, loss:L("Safety approval","Aprobación de seguridad") }
+];
+
+/* =====================================================================
+   VIEW
+   ===================================================================== */
+const { useState, useRef, useCallback } = React;
+const QLANG = new URLSearchParams(location.search).get("lang");
+const EMBED = QLANG === "es" || QLANG === "en";
+const START_LANG = EMBED ? QLANG : (() => { try { return localStorage.getItem("dmo-lang") === "en" ? "en" : "es"; } catch (e) { return "es"; } })();
+document.documentElement.lang = START_LANG;
+if (EMBED) document.documentElement.classList.add("embed");
+const html = htm.bind(React.createElement);
+const val = (x, lang) => typeof x[lang] === "function" ? x[lang]() : x[lang];
+const isWet = i => RAIN_DAYS[i] >= 7;
+
+function Badge({ k, lang }) { return html`<span class=${"badge "+k}>${T[k][lang]}</span>`; }
+
+function useTip() {
+  const box = useRef(null);
+  const [tip, setTip] = useState(null);
+  const show = useCallback((e, lines) => {
+    const r = box.current.getBoundingClientRect();
+    let x = e.clientX - r.left + 12, y = e.clientY - r.top - 10;
+    if (x + 230 > r.width) x = Math.max(0, e.clientX - r.left - 230);
+    setTip({ x, y, lines });
+  }, []);
+  const hide = useCallback(() => setTip(null), []);
+  const node = tip && html`<div class="tip" style=${{left:tip.x+"px", top:tip.y+"px"}}>${tip.lines.map((l,i)=> i===0 ? html`<b>${l}</b>` : html`<div>${l}</div>`)}</div>`;
+  return { box, show, hide, node };
+}
+
+const W = 960, BAND = W/12;
+const roundTop = (x, base, top, w, r=4) => `M${x},${base} V${top+r} Q${x},${top} ${x+r},${top} H${x+w-r} Q${x+w},${top} ${x+w},${top+r} V${base} Z`;
+
+function EmptyRoomsChart({ lang }) {
+  const t = useTip();
+  const H = 170, T0 = 24, B = 22, bw = BAND*0.62, max = 4000, base = H-B;
+  const y = v => T0 + (base-T0)*(1 - v/max);
+  const labelled = new Set([4,5,8,9,11]);
+  return html`<div class="chart-box" ref=${t.box}>
+    <svg viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${T.c1[lang]+": "+emptyRooms.map((v,i)=>MON[lang][i]+" "+fmt(v)).join(", ")}>
+      <line x1="0" x2=${W} y1=${base} y2=${base} stroke="#b9c6c9"/>
+      ${emptyRooms.map((v,i)=>{ const x = i*BAND+(BAND-bw)/2, top=y(v);
+        return html`<g key=${i}>
+          <path d=${roundTop(x,base,top,bw)} fill="#00839B" opacity=${["need","storm","dry"].includes(VERDICT[i]) ? 1 : 0.5}/>
+          ${labelled.has(i) && html`<text x=${x+bw/2} y=${top-7} text-anchor="middle" font-size="13" font-weight="600" fill="#14262c">${fmt(v)}</text>`}
+          <text x=${x+bw/2} y=${H-5} text-anchor="middle" font-size="12.5" fill="#5d7178">${MON[lang][i]}</text>
+          <rect x=${i*BAND} y="0" width=${BAND} height=${H} fill="transparent"
+            onPointerMove=${e=>t.show(e,[cap1(MONL[lang][i]), fmt(v)+" "+T.c1tip[lang], r1(avgOcc[i])+"% "+T.occ[lang]])} onPointerLeave=${t.hide}/>
+        </g>`; })}
+    </svg>${t.node}</div>`;
+}
+
+function SeatsChart({ lang }) {
+  const t = useTip();
+  const H = 180, T0 = 28, B = 22, bw = BAND*0.28, gap = 3, max = 19000, base = H-B;
+  const y = v => T0 + (base-T0)*(1 - v/max);
+  return html`<div class="chart-box" ref=${t.box}>
+    <svg viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${T.c2[lang]}>
+      <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="#cbe8ee"/><rect width="2.2" height="6" fill="#00839B"/></pattern></defs>
+      <line x1="0" x2=${W} y1=${base} y2=${base} stroke="#b9c6c9"/>
+      ${MON[lang].map((m,i)=>{
+        const cx = i*BAND+BAND/2, win = isWinter(i), s = seatsAny(i), a = intlArr(i), e = estSeats(i);
+        const top = Math.min(y(s), y(a));
+        const label = win ? ((seatGap(i)>0?"+":"")+seatGap(i)+"%") : "~"+fk(s);
+        const lines = win
+          ? [cap1(MONL[lang][i]), fmt(s)+" "+T.seatsT[lang]+" (OAG)", fmt(a)+" "+T.arrT[lang]+" (AFAC)"]
+          : [cap1(MONL[lang][i]), "~"+fmt(e.mid)+" "+T.seatsT[lang]+" ("+T.estT[lang]+")", T.rangeT[lang]+": "+fmt(e.lo)+"–"+fmt(e.hi), fmt(a)+" "+T.arrT[lang]+" (AFAC)"];
+        return html`<g key=${i}>
+          <path d=${roundTop(cx-bw-gap/2,base,y(s),bw,3)} fill=${win ? "#00839B" : "url(#hatch)"}/>
+          <path d=${roundTop(cx+gap/2,base,y(a),bw,3)} fill="#c9801a"/>
+          <text x=${cx} y=${top-8} text-anchor="middle" font-size=${win?13:12} font-weight=${win?700:600} fill=${win && seatGap(i)<0 ? "#9A3B22" : (win ? "#0E2A33" : "#2D5689")}>${label}</text>
+          <text x=${cx} y=${H-5} text-anchor="middle" font-size="12.5" fill="#5d7178">${m}</text>
+          <rect x=${i*BAND} y="0" width=${BAND} height=${H} fill="transparent" onPointerMove=${ev=>t.show(ev,lines)} onPointerLeave=${t.hide}/>
+        </g>`;
+      })}
+    </svg>${t.node}</div>`;
+}
+
+function WeatherChart({ lang }) {
+  const t = useTip();
+  const H = 130, T0 = 22, B = 4, bw = BAND*0.62, max = 18, base = H-B;
+  const y = v => T0 + (base-T0)*(1 - v/max);
+  return html`<div class="chart-box" ref=${t.box}>
+    <svg viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${T.c3[lang]+": "+RAIN_TXT.map((v,i)=>MON[lang][i]+" "+v).join(", ")}>
+      <line x1="0" x2=${W} y1=${base} y2=${base} stroke="#b9c6c9"/>
+      ${RAIN_DAYS.map((v,i)=>{ const x = i*BAND+(BAND-bw)/2, top = y(v);
+        return html`<g key=${i}>
+          ${v>0 && html`<path d=${roundTop(x,base,top,bw,Math.min(4,(base-top)/2))} fill="#3e6fa8"/>`}
+          <text x=${x+bw/2} y=${(v>0?top:base)-7} text-anchor="middle" font-size="12.5" font-weight="600" fill="#14262c">${RAIN_TXT[i]}</text>
+          <rect x=${i*BAND} y="0" width=${BAND} height=${H} fill="transparent"
+            onPointerMove=${e=>t.show(e,[cap1(MONL[lang][i]), RAIN_TXT[i]+" "+T.rainT[lang], RAIN_MM[i]+" mm "+T.mmT[lang], T.stormRow[lang]+": "+T.stormLv[STORM[i]][lang]])} onPointerLeave=${t.hide}/>
+        </g>`; })}
+    </svg>
+    <div class="row12 storm" style=${{marginTop:"4px"}} aria-label=${T.stormRow[lang]}>${STORM.map((s,i)=>html`<div key=${i} class=${"s"+s} title=${MONL[lang][i]+": "+T.stormLv[s][lang]}>${T.stormLv[s][lang]}</div>`)}</div>
+    <div class="row12">${MON[lang].map(m=>html`<div class="mlab">${m}</div>`)}</div>
+    ${t.node}</div>`;
+}
+
+function Profile({ p, lang }) {
+  const rooms = roomsFor(p.max), pct = roomPct(p.max, p.roomM);
+  return html`<div class="card">
+    <div class="card-h"><h4>${p.name[lang]}</h4><div>${p.segs.map(s=>html`<span class="seg" style=${{background:SEGCOL[s][0],color:SEGCOL[s][1]}}>${SEGN[s][lang]}</span>`)}</div></div>
+    <div class="card-b">
+      <div class="big"><div><span class="n">${p.att}</span> <span class="u">${T.att[lang]}</span></div></div>
+      <div class="months">${MON[lang].map((m,i)=>html`<span class=${(p.months.includes(i)?"on ":"")+(isWet(i)?"wet":"")} title=${MONL[lang][i]}>${m[0]}</span>`)}</div>
+      <div class="checks">
+        <div class="chk"><span class="ic ic-gw">📍</span><span>${p.gw[lang]}</span></div>
+        <div class="chk"><span class="ic ic-room">🛏</span><span>${T.roomTxt[lang](fmt(rooms), pct, MONL[lang][p.roomM])}</span></div>
+        <div class="chk"><span class="ic ic-air">✈</span><span>${val(p.air,lang)}</span></div>
+        <div class=${"chk"+(p.wxOk?" ok":"")}><span class="ic ic-wx">${p.wxOk ? "☀" : "☂"}</span><span>${p.wx[lang]}</span></div>
+      </div>
+      <div class="chips">${p.ind.map(x=>html`<span>${x[lang]}</span>`)}</div>
+      <div class="pitch"><b>${T.fPitch[lang]}:</b> ${val(p.pitch,lang)}</div>
+    </div></div>`;
+}
+
+const check = html`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00839B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.1V12a9 9 0 1 1-5.3-8.2"/><path d="M21 4 12 13l-3-3"/></svg>`;
+
+function App() {
+  const [lang, setLangState] = useState(START_LANG);
+  const setLang = l => { setLangState(l); try { localStorage.setItem("dmo-lang", l); } catch(e) {} document.documentElement.lang = l; };
+  const stCls = { target:"st-target", watch:"st-watch", notyet:"st-notyet" };
+  const stLab = { target:T.stTarget, watch:T.stWatch, notyet:T.stNot };
+  const sepOcc = (OCC[2024][8]+OCC[2025][8])/2;
+  return html`<div class="wrap">
+    <div class="top">
+      <div class="lead-in"><h2>${T.title[lang]}</h2><p>${T.sub[lang]}</p></div>
+      ${!EMBED && html`<div class="lang" role="group" aria-label="Idioma / Language">
+        <button class=${lang==="es"?"on":""} onClick=${()=>setLang("es")}>ES</button>
+        <button class=${lang==="en"?"on":""} onClick=${()=>setLang("en")}>EN</button>
+      </div>`}
+    </div>
+    <div class="demo">${T.demo[lang]}</div>
+    <div class="legend-badges">
+      <span><${Badge} k="real" lang=${lang}/> ${T.realD[lang]}</span>
+      <span><${Badge} k="est" lang=${lang}/> ${T.estD[lang]}</span>
+      <span><${Badge} k="rule" lang=${lang}/> ${T.ruleD[lang]}</span>
+      <span><${Badge} k="syn" lang=${lang}/> ${T.synLeg[lang]}</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v">${fmt(ROOMS)}</div><div class="d">${T.k1[lang]}</div><${Badge} k="real" lang=${lang}/></div>
+      <div class="kpi"><div class="v">${Math.round(SH.michBajio)}%</div><div class="d">${T.k2[lang]}</div><${Badge} k="real" lang=${lang}/></div>
+      <div class="kpi"><div class="v">+${canChg}%</div><div class="d">${T.k3[lang]}</div><${Badge} k="real" lang=${lang}/></div>
+      <div class="kpi"><div class="v">${r1(sepOcc)}%</div><div class="d">${T.k4[lang]}</div><${Badge} k="real" lang=${lang}/></div>
+    </div>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.whenT[lang]}</h2><${Badge} k="real" lang=${lang}/><${Badge} k="est" lang=${lang}/></div>
+      <p class="pdesc">${T.whenD[lang]}</p>
+
+      <div class="chart-title">🛏 ${T.c1[lang]}</div>
+      <${EmptyRoomsChart} lang=${lang}/>
+      <p class="cap">${T.c1cap[lang]}</p>
+
+      <div class="chart-title">✈ ${T.c2[lang]}</div>
+      <div class="series-legend">
+        <span><i style=${{background:"#00839B"}}></i>${T.s1[lang]}</span>
+        <span><i class="hatch"></i>${T.s1e[lang]} <${Badge} k="est" lang=${lang}/></span>
+        <span><i style=${{background:"#c9801a"}}></i>${T.s2[lang]}</span>
+      </div>
+      <${SeatsChart} lang=${lang}/>
+      <p class="cap">${T.c2cap[lang]}</p>
+
+      <div class="chart-title">☂ ${T.c3[lang]}</div>
+      <${WeatherChart} lang=${lang}/>
+      <p class="cap">${T.c3cap[lang]}</p>
+
+      <div class="verdict">
+        <div class="vt">${T.verdict[lang]}</div>
+        <div class="row12 tags">${VERDICT.map((s,i)=>html`<div key=${i} class=${"t-"+s} title=${s==="none"?"":T.tag[s][lang]}>${s==="none" ? "" : T.tag[s][lang]}</div>`)}</div>
+        <div class="row12">${MON[lang].map(m=>html`<div class="mlab">${m}</div>`)}</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.gwT[lang]}</h2><${Badge} k="real" lang=${lang}/></div>
+      <p class="pdesc">${T.gwD[lang]}</p>
+      <div class="grid3">${GATEWAYS.map(g=>html`<div class="gw">
+        <div class="row"><h3>${g.name[lang]}</h3><span class=${"status "+stCls[g.st]}>${stLab[g.st][lang]}</span></div>
+        <div class="share"><b>${Math.round(g.share)}%</b><div class="bar"><span style=${{width:g.share+"%"}}></span></div></div>
+        <div class="of">${g.of[lang]}</div>
+        <div class="kv"><span class="ic">🧭</span><span>${g.access[lang]}</span></div>
+        <div class="kv"><span class="ic">✈</span><span>${g.flights[lang]}</span></div>
+      </div>`)}</div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.profT[lang]}</h2><${Badge} k="rule" lang=${lang}/><${Badge} k="real" lang=${lang}/><${Badge} k="syn" lang=${lang}/></div>
+      <p class="pdesc">${T.profD[lang]} <span style=${{color:"#3e6fa8"}}>${T.wetKey[lang]}</span>.</p>
+      <div class="tierhead"><span class="tier tier1">${T.tier1[lang]}</span><h3>${T.tier1h[lang]}</h3></div>
+      <div class="grid2">${PROFILES.filter(p=>p.tier===1).map(p=>html`<${Profile} p=${p} lang=${lang}/>`)}</div>
+      <div class="tierhead"><span class="tier tier2">${T.tier2[lang]}</span><h3>${T.tier2h[lang]}</h3></div>
+      <div class="grid2">${PROFILES.filter(p=>p.tier===2).map(p=>html`<${Profile} p=${p} lang=${lang}/>`)}</div>
+      <div class="tierhead"><span class="tier tier0">${T.tier0[lang]}</span><h3>${T.tier0h[lang]}</h3></div>
+      <div class="notyet">${NOTYET.map(n=>html`<div class="ny"><h4>${n.t[lang]}</h4><p>${n.d[lang]}</p></div>`)}</div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.calT[lang]}</h2><${Badge} k="rule" lang=${lang}/></div>
+      <p class="pdesc">${T.calD[lang]}</p>
+      <div class="cal">${MONL[lang].map((m,i)=>{
+        const s = VERDICT[i], items = CAL[i] || [];
+        return html`<div class="m" key=${i}>
+          <h4>${cap1(m)}${s!=="none" && html`<small class=${"t-"+s}>${T.tag[s][lang]}</small>`}</h4>
+          ${items.length ? items.map(([k,pi,f])=> k==="p"
+              ? html`<span class="pill p"><em>${T.pitch[lang]}:</em> ${PROFILES[pi].short[lang]} · ${T.forM[lang]} ${f[lang]}</span>`
+              : html`<span class="pill h"><em>${T.host[lang]}:</em> ${PROFILES[pi].short[lang]}</span>`)
+            : html`<div class="quiet">${T.calNone[lang]}</div>`}
+        </div>`;
+      })}</div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.appT[lang]}</h2><${Badge} k="rule" lang=${lang}/></div>
+      <ul class="app">${APPROACHES.map(a=>html`<li>${check}<div><h4>${a.h[lang]}</h4><p>${a.p[lang]}</p></div></li>`)}</ul>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><h2>${T.synT[lang]}</h2><${Badge} k="syn" lang=${lang}/></div>
+      <p class="pdesc">${T.synD[lang]}</p>
+      <div class="synwrap"><table class="syn">
+        <thead><tr><th>${T.thSeg[lang]}</th><th>${T.thGrp[lang]}</th><th>${T.thPick[lang]}</th><th>${T.thWin[lang]}</th><th>${T.thRate[lang]}</th><th>${T.thRn[lang]}</th><th>${T.thLoss[lang]}</th></tr></thead>
+        <tbody>${SYN.map(r=>html`<tr>
+          <td>${PROFILES[r.p].name[lang]}</td><td class="n">${r.grp}</td><td class="n">${r.pick}%</td>
+          <td class="n">${r.win} ${T.mo[lang]}</td><td class="n">${r.rate}%</td><td class="n">${fmt(r.rn)}</td><td>${r.loss[lang]}</td></tr>`)}</tbody>
+      </table></div>
+    </section>
+
+    <footer><b>${T.srcT[lang]}</b><ul>${T.src.map(s=>html`<li>${s[lang]}</li>`)}</ul></footer>
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+
+/* Inside the platform page this guide sits in an iframe: tell the page how tall it is. */
+if (EMBED && window.parent !== window) {
+  const send = () => { try { window.parent.postMessage({ guia: "h", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} };
+  if (window.ResizeObserver) new ResizeObserver(send).observe(document.body);
+  window.addEventListener("load", send);
+  send();
+}
+</script>
+</body>
+</html>

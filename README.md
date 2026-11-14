@@ -23,6 +23,8 @@ Reads a DMO's Data sheet, hotel form responses and prospect lists; checks the st
 | `src/brief_api.py` | Claude API call for the brief, with redraft and hold rules |
 | `site_assets/fonts/` | Self-hosted Cormorant Garamond and Hanken Grotesk (SIL Open Font License) |
 | `tools/generate_synthetic.py` | Rebuilds the synthetic data |
+| `guia/` | Targeting guide tab (React, vendored; real public data for the destination, plus labelled estimates and synthetic examples) |
+| `tools/add_targeting_guide.py` | Adds the Guía de prospección tab to a published site (run by "Publicar sin correr") |
 
 ## Run locally
     pip install -r requirements.txt
