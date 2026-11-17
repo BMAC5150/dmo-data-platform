@@ -62,10 +62,11 @@ jobs:
           git commit -q -m "Corrida #${{ github.run_number }} (${{ github.sha }})"
           git push -q origin HEAD:archivo
 
-      - name: Incluir el archivo y el portal en la página
+      - name: Incluir el archivo, el portal y el acceso en la página
         run: |
           cp -R archivo_repo/archivo out/site/archivo
           cp -R portal out/site/portal
+          cp -R login out/site/login
 
       - name: Guardar los resultados de la corrida
         if: always()
