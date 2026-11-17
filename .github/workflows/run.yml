@@ -77,6 +77,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      - name: Aplicar la marca Ocelo (solo presentación)
+        run: python3 tools/apply_brand.py out/site
+
       - name: Preparar la página para publicar
         uses: actions/upload-pages-artifact@v5
         with:

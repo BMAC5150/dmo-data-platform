@@ -64,6 +64,11 @@ jobs:
           python3 tools/add_targeting_guide.py prev/site
           echo "Más la pestaña Guía de prospección / Targeting guide (ES y EN)" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Aplicar la marca Ocelo (solo presentación)
+        run: |
+          python3 tools/apply_brand.py prev/site
+          echo "Marca Ocelo aplicada: colores, tipografía y logotipo; ninguna cifra cambia" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Preparar la página para publicar
         uses: actions/upload-pages-artifact@v5
         with:
