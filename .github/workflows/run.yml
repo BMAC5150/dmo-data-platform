@@ -67,6 +67,7 @@ jobs:
           cp -R archivo_repo/archivo out/site/archivo
           cp -R portal out/site/portal
           cp -R login out/site/login
+          cp -R pitch out/site/pitch
 
       - name: Guardar los resultados de la corrida
         if: always()

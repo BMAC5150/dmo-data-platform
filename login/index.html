@@ -377,7 +377,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   // Hardcoded demo credentials. Client-side only: this is a demo gate, not security.
   var DEMO_USER = 'demo';
   var DEMO_PASS = 'ocelo2026';
-  var PORTAL_URL = 'https://bmac5150.github.io/dmo-data-platform/portal/';
+  // After sign-in: the pitch page, in the language chosen here; its "Ver la demo" button opens the portal.
+  var NEXT_URL = 'https://bmac5150.github.io/dmo-data-platform/pitch/';
   // ───────────────────────────────────────────────────────────────
 
   var h = React.createElement;
@@ -388,18 +389,18 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       tag: 'Ve lo que otros no ven.',
       user: 'Usuario', pass: 'Contraseña',
       userPh: 'Tu ID de usuario', passPh: '••••••••',
-      go: 'Entrar', opening: 'Abriendo portal…',
+      go: 'Entrar', opening: 'Abriendo…',
       bad: 'Usuario o contraseña incorrectos.',
-      ok: 'Acceso concedido.', open: 'Abrir portal de socios →',
+      ok: 'Acceso concedido.', open: 'Continuar →',
       foot: 'Demo · datos sintéticos'
     },
     en: {
       tag: 'See what others don’t.',
       user: 'User ID', pass: 'Password',
       userPh: 'Your user ID', passPh: '••••••••',
-      go: 'Sign in', opening: 'Opening portal…',
+      go: 'Sign in', opening: 'Opening…',
       bad: 'Incorrect user ID or password.',
-      ok: 'Access granted.', open: 'Open partner portal →',
+      ok: 'Access granted.', open: 'Continue →',
       foot: 'Demo · synthetic data'
     }
   };
@@ -431,7 +432,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         setBad(false);
         if (framed) { setStatus('granted'); return; }   // inside a preview frame: show a link
         setStatus('going');
-        setTimeout(function () { window.location.href = PORTAL_URL; }, 350);
+        setTimeout(function () { window.location.href = NEXT_URL + '?lang=' + lang; }, 350);
       } else {
         setBad(true); setShake(true);
         setTimeout(function () { setShake(false); }, 400);
@@ -446,7 +447,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     if (status === 'granted') {
       formChildren = [
         h('p', { key: 'ok', className: 'ok' }, t.ok),
-        h('a', { key: 'a', className: 'btn', href: PORTAL_URL, target: '_blank', rel: 'noopener' }, t.open)
+        h('a', { key: 'a', className: 'btn', href: NEXT_URL + '?lang=' + lang, target: '_blank', rel: 'noopener' }, t.open)
       ];
     } else {
       formChildren = [

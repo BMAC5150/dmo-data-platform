@@ -54,6 +54,11 @@ jobs:
           mkdir -p prev/site/login
           cp login/index.html prev/site/login/index.html
 
+      - name: Añadir la página de presentación (pitch), que se abre al entrar
+        run: |
+          mkdir -p prev/site/pitch
+          cp pitch/index.html prev/site/pitch/index.html
+
       - name: Añadir Vista Tablero y Vista Resumen (16:9)
         run: |
           python3 tools/add_presentation_views.py prev/site

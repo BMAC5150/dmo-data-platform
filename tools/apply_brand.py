@@ -10,7 +10,7 @@ targeting guide, 16:9 views, archived runs) and changes no number or word in the
   - mark: the Ocelo lockup in the dashboard header and the portal header, plus the favicon.
 The run's own record (results workbook, archived files, saved run artifact) is never touched:
 this runs only on the copy that is published. Safe to run twice (pages already done are skipped).
-login/ is skipped: it is built in the brand already.
+login/ and pitch/ are skipped: they are built in the brand already.
 """
 import re
 import shutil
@@ -133,7 +133,7 @@ def main(site):
     shutil.copy2(ROOT / "site_assets" / "fonts" / "OFL-Outfit.txt", site / "fonts" / "OFL-Outfit.txt")
     done = 0
     for p in sorted(site.rglob("*.html")):
-        if p.relative_to(site).parts[0] == "login":
+        if p.relative_to(site).parts[0] in ("login", "pitch"):
             continue
         notes = brand_page(p, site)
         if notes is not None:
